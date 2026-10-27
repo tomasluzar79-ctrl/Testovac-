@@ -249,7 +249,7 @@
     }, 150);
   }
 
-  // VYKRESLENÍ POSTAVY Z MŘÍŽKY 2752x1536 (688x192 px na 1 políčko)
+  // OPRAVENÉ VYKRESLENÍ: Výřez přesného čtverce uprostřed širokého pole sprite sheetu
   function drawNinjaSprite(ctx, p, cInfo, animFrame) {
     ctx.save();
     if(p.facing === -1) {
@@ -264,8 +264,11 @@
 
     let img = cInfo.spriteObj;
     if (img && img.complete && img.naturalWidth !== 0) {
-      const fWidth = 688;
-      const fHeight = 192;
+      const cellWidth = 688;
+      const cellHeight = 192;
+      const charSize = 192; // Velikost čtvercového výřezu postavy uvnitř buňki
+      const offsetX = (cellWidth - charSize) / 2; // Vycentrování vodorovně
+      
       let row = 0;
       let col = 0;
 
@@ -302,7 +305,7 @@
 
       ctx.drawImage(
         img,
-        col * fWidth, row * fHeight, fWidth, fHeight,
+        (col * cellWidth) + offsetX, row * cellHeight, charSize, charSize,
         -35, -75, 70, 70
       );
     } else {
