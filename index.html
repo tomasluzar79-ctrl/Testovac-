@@ -10,7 +10,7 @@
 <title>NINJA fight Krasne Pole</title>
 
 <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' background='%23100a1c'><text y='.9em' font-size='90'>🥷</text></svg>">
-<link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIk5pbmphIGZpZ2h0IEtyYXNuZSBQb2xlIiwKICAic2hvcnRfbmFtZSI6ICJOaW5qYUtSQVAiLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzA4MGExMCIsCiAgInRoZW1lX2NvbG9yIjogIiNmZjIyNTUiLAogICJvcmllbnRhdGlvbiI6ICJsYW5kc2NhcGUiCiB9">
+<link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIk5pbmphIGZpZ2h0IEtyYXNuZSBQb2xlIiwKICAic2hvcnRfbmFtZSI6ICJOaW5qYUtSQVAiLAogICJzdGFydF91cmwiOiAiLiIsImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiAiIzA4MGExMCIsICJ0aGVtZV9jb2xvciI6ICIjZmYyMjU1IiwgIm9yaWVudGF0aW9uIjogImxhbmRzY2FwZSIgfQ==">
 
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 
@@ -118,7 +118,7 @@
     </div>
   </div>
 
-  <!-- ONLINE MENU (ČÍSELNÝ KÓD) -->
+  <!-- ONLINE MENU -->
   <div id="online-screen" class="overlay" style="display:none;">
     <h2>📱 ONLINE HRA NA 2 MOBILY</h2>
     <p>Zadejte stejný kód na obou zařízeních</p>
@@ -191,18 +191,20 @@
   let roundNumber = 1;
   let currentRoomCode = "";
 
-  // DEFINICE POSTAV VČETNĚ PŘEDNAČTENÍ OBRÁZKŮ PRO BOJ
+  // DEFINICE POSTAV S ODKAZI NA PROFILOVÉ OBRÁZKY I SPRITE SHEETU
   const CHARACTERS = [
-    { name: 'DAVID', title: 'Stínový Blade', speed: 1.6, img: 'images/david.png' },
-    { name: 'MATĚJ', title: 'Bleskový Kunoichi', speed: 1.55, img: 'images/matej.png' },
-    { name: 'ŠIMON', title: 'Větrný Ronin', speed: 1.5, img: 'images/simon.png' },
-    { name: 'MATY', title: 'Ohňový Shinobi', speed: 1.4, img: 'images/maty.png' }
+    { name: 'DAVID', title: 'Stínový Blade', speed: 1.6, img: 'images/david.png', sprites: 'images/david_sprites.png', color: '#1a1a2e' },
+    { name: 'MATĚJ', title: 'Bleskový Kunoichi', speed: 1.55, img: 'images/matej.png', sprites: 'images/matej_sprites.png', color: '#104e8b' },
+    { name: 'ŠIMON', title: 'Větrný Ronin', speed: 1.5, img: 'images/simon.png', sprites: 'images/simon_sprites.png', color: '#0c5c38' },
+    { name: 'MATY', title: 'Ohňový Shinobi', speed: 1.4, img: 'images/maty.png', sprites: 'images/maty_sprites.png', color: '#800c0c' }
   ];
 
-  // Přednačtení obrázků pro bojovníky
+  // Přednačtení obrázků (menu portréty i bojové sprite sheety)
   CHARACTERS.forEach(c => {
     c.imageObj = new Image();
     c.imageObj.src = c.img;
+    c.spriteObj = new Image();
+    c.spriteObj.src = c.sprites;
   });
 
   let p1 = { x: 150, y: GROUND_Y, vx: 0, vy: 0, hp: 100, lives: 10, char: 0, facing: 1, state: 'idle', isGrounded: true, block: false, isSliding: false, isCrouching: false, isKnockedDown: false, hitTimer: 0, proj: null, attackType: 'punch', hasSuper: true, comboBuffer: [] };
@@ -249,7 +251,7 @@
     }, 150);
   }
 
-  // VYKRESLENÍ POSTAVY POMOCÍ NOVÝCH OBRÁZKŮ V BOJI
+  // VYKRESLENÍ POSTAVY POMOCÍ SPRITE SHEETU
   function drawNinjaSprite(ctx, p, cInfo, animFrame) {
     ctx.save();
     if(p.facing === -1) {
@@ -262,27 +264,53 @@
     ctx.ellipse(0, 0, p.isKnockedDown ? 30 : (p.isSliding ? 28 : 16), 5, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Vykreslení obrázku postavy místo vektorových tvarů
-    if (cInfo.imageObj && cInfo.imageObj.complete && cInfo.imageObj.naturalWidth !== 0) {
-      let w = 80;
-      let h = 95;
-      
+    let img = cInfo.spriteObj;
+    if (img && img.complete && img.naturalWidth !== 0) {
+      // Předpokládané rozvržení sprite sheetu (mřížka políček 96x96 px)
+      const fWidth = 96;
+      const fHeight = 96;
+      let row = 0;
+      let col = 0;
+
       if (p.isKnockedDown) {
-        ctx.translate(0, -15);
-        ctx.rotate(Math.PI / 2);
-        ctx.drawImage(cInfo.imageObj, -h/2, -w/2, h, w);
+        row = 8;
+        col = Math.min(3, Math.floor(animFrame / 10));
       } else if (p.isSliding) {
-        ctx.drawImage(cInfo.imageObj, -w/2, -h + 20, w, h);
+        row = 7;
+        col = Math.floor(animFrame / 6) % 3;
       } else if (p.isCrouching) {
-        ctx.drawImage(cInfo.imageObj, -w/2, -h + 25, w, h - 20);
+        row = 6;
+        col = 0;
+      } else if (p.block) {
+        row = 5;
+        col = Math.floor(animFrame / 15) % 2;
+      } else if (p.state === 'special') {
+        row = 4;
+        col = Math.floor(animFrame / 10) % 2;
+      } else if (p.state === 'attack') {
+        if (p.attackType === 'kick') {
+          row = 3;
+          col = Math.min(2, Math.floor(animFrame / 5));
+        } else {
+          row = 2;
+          col = Math.min(3, Math.floor(animFrame / 5));
+        }
+      } else if (p.vx !== 0) {
+        row = 1;
+        col = Math.floor(animFrame / 8) % 4;
       } else {
-        // Mírné pohupování při stání / chůzi
-        let bounce = Math.sin(animFrame * 0.1) * (p.vx !== 0 ? 3 : 1.5);
-        ctx.drawImage(cInfo.imageObj, -w/2, -h - bounce, w, h);
+        row = 0;
+        col = Math.floor(animFrame / 15) % 4;
       }
+
+      ctx.drawImage(
+        img,
+        col * fWidth, row * fHeight, fWidth, fHeight,
+        -42, -90, 84, 84
+      );
     } else {
-      // Záložní barva, kdyby se obrázek nestihl načíst
-      ctx.fillStyle = '#ff2255';
+      // Záložní zobrazení, pokud sprite sheet ještě chybí
+      ctx.fillStyle = cInfo.color || '#ff2255';
       ctx.fillRect(-15, -60, 30, 60);
     }
 
