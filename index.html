@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ninja Krasne Pole">
+<title>NINJA fight Krasne Pole</title>
+
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' background='%23100a1c'><text y='.9em' font-size='90'>🥷</text></svg>">
+<link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIk5pbmphIGZpZ2h0IEtyYXNuZSBQb2xlIiwKICAic2hvcnRfbmFtZSI6ICJOaW5qYUtSQVAiLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzA4MGExMCIsCiAgInRoZW1lX2NvbG9yIjogIiNmZjIyNTUiLAogICJvcmllbnRhdGlvbiI6ICJsYW5kc2NhcGUiCiB9">
+
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; touch-action: none; }
+  body, html { width: 100vw; height: 100vh; background: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; overflow: hidden; display: flex; justify-content: center; align-items: center; margin: 0; padding: 0; }
+  
+  #game-container { position: relative; width: 100vw; height: 100vh; background: #000; display: flex; flex-direction: column; overflow: hidden; }
+  canvas { width: 100%; height: 100%; display: block; image-rendering: pixelated; object-fit: contain; }
+  
+  .overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(12, 18, 32, 0.98) 0%, rgba(28, 14, 36, 0.96) 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; padding: 16px; text-align: center; backdrop-filter: blur(8px); }
+  
+  #cover-screen { background: radial-gradient(circle, rgba(50,20,60,1) 0%, rgba(10,12,20,1) 100%); cursor: pointer; z-index: 20; }
+  .cover-art-canvas { width: 320px; height: 130px; margin: 12px 0; image-rendering: pixelated; border: 2px solid #ffd700; border-radius: 10px; box-shadow: 0 0 25px rgba(255,215,0,0.4); }
+  .pulse-text { font-size: 0.95rem; color: #ffd700; font-weight: bold; animation: pulse 1.2s infinite alternate; margin-top: 10px; letter-spacing: 2px; text-shadow: 0 0 10px #ffd700; }
+  
+  @keyframes pulse { 0% { opacity: 0.4; transform: scale(0.98); } 100% { opacity: 1; transform: scale(1.02); } }
+
+  h1 { font-size: 2.1rem; color: #ff2255; text-shadow: 3px 3px #ffd700, -2px -2px #000; margin-bottom: 2px; letter-spacing: 3px; font-weight: bold; }
+  h2 { font-size: 1rem; color: #ffd700; margin-bottom: 8px; text-shadow: 0 0 8px rgba(255,215,0,0.6); letter-spacing: 2px; }
+  p { font-size: 0.8rem; color: #ddd; margin-bottom: 6px; line-height: 1.3; }
+  
+  .btn-group { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 95%; margin: 6px 0; }
+  .btn { background: #1a2238; color: #fff; border: 2px solid #ffd700; padding: 10px 16px; font-size: 0.85rem; font-family: inherit; font-weight: bold; cursor: pointer; border-radius: 8px; box-shadow: 0 4px #998000; transition: all 0.1s; text-transform: uppercase; }
+  .btn:active { transform: translateY(3px); box-shadow: 0 1px #998000; }
+  .btn-red { border-color: #ff2255; color: #ff2255; box-shadow: 0 4px #990022; background: #2b0d1a; }
+  
+  input[type="text"] { padding: 8px 12px; font-size: 1.1rem; border: 2px solid #ffd700; background: #0c101c; color: #ffd700; text-align: center; font-family: inherit; width: 180px; border-radius: 6px; text-transform: uppercase; font-weight: bold; letter-spacing: 2px; }
+  
+  .hero-gallery { display: flex; gap: 10px; margin: 6px 0 10px 0; }
+  .hero-card { width: 75px; height: 95px; background: rgba(20, 28, 48, 0.85); border: 2px solid #ffd700; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.6); }
+  .hero-card canvas { width: 45px; height: 55px; display: block; image-rendering: pixelated; }
+  .hero-card .h-name { font-size: 0.68rem; font-weight: bold; color: #ffd700; margin-top: 2px; }
+
+  .char-preview-grid { display: flex; gap: 10px; margin: 10px 0; }
+  .char-card { background: #141c30; border: 2px solid #2a385c; padding: 8px; border-radius: 8px; width: 120px; text-align: center; cursor: pointer; transition: 0.2s; }
+  .char-card.selected { border-color: #ff2255; background: #2a1830; box-shadow: 0 0 20px #ff2255; transform: scale(1.05); }
+  .char-card canvas { width: 50px; height: 60px; margin: 0 auto 4px; display: block; image-rendering: pixelated; border-radius: 6px; background: rgba(0,0,0,0.3); }
+  .char-card .name { font-size: 0.8rem; font-weight: bold; color: #ffd700; }
+
+  .map-grid { display: flex; gap: 10px; margin: 10px 0; }
+  .map-card { background: #141c30; border: 2px solid #2a385c; padding: 6px; border-radius: 8px; width: 120px; text-align: center; cursor: pointer; transition: 0.2s; }
+  .map-card.selected { border-color: #ffd700; background: #283418; box-shadow: 0 0 18px #ffd700; transform: scale(1.05); }
+
+  /* DOTYKOVÉ OVLÁDÁNÍ */
+  #touch-controls { position: absolute; inset: 0; pointer-events: none; z-index: 5; display: flex; justify-content: space-between; align-items: flex-end; padding: 14px 18px; }
+  .dpad, .action-btns { pointer-events: auto; display: grid; gap: 6px; }
+  .dpad { grid-template-columns: repeat(3, 48px); grid-template-rows: repeat(3, 48px); }
+  .action-btns { grid-template-columns: repeat(3, 52px); grid-template-rows: repeat(2, 52px); }
+  
+  .t-btn { background: rgba(20, 28, 48, 0.92); border: 2px solid #ffd700; border-radius: 50%; color: #fff; font-size: 0.75rem; font-weight: bold; display: flex; justify-content: center; align-items: center; box-shadow: 0 3px rgba(0,0,0,0.6); }
+  .t-btn:active, .t-btn.active { background: rgba(255, 215, 0, 0.4); transform: scale(0.95); }
+  
+  .btn-atk { border-color: #ff2255; color: #ff2255; }
+  .btn-def { border-color: #33ff66; color: #33ff66; }
+  .btn-spec { border-color: #00ffff; color: #00ffff; }
+  .btn-slide { border-color: #ffff00; color: #ffff00; }
+</style>
+</head>
+<body>
+
+<div id="game-container">
+  <canvas id="canvas" width="640" height="360"></canvas>
+
+  <!-- COVER SCREEN -->
+  <div id="cover-screen" class="overlay" onclick="openMainMenu()">
+    <h1>NINJA fight Krasne Pole</h1>
+    <h2>⛩️ Krásnopolská Aréna ⛩️</h2>
+    <canvas id="cover-art" class="cover-art-canvas" width="320" height="130"></canvas>
+    <div class="pulse-text">👉 KLEPNI PRO START S HUDBOU 👈</div>
+  </div>
+
+  <!-- HLAVNÍ MENU -->
+  <div id="title-screen" class="overlay" style="display:none;">
+    <h1>NINJA fight Krasne Pole</h1>
+    <h2>⚔️ HLAVNÍ MENU ⚔️</h2>
+    <div class="hero-gallery" id="hero-gallery"></div>
+    <div class="btn-group">
+      <button class="btn btn-red" onclick="startMode('1p')">🤖 1 HRÁČ (VS AI)</button>
+      <button class="btn" onclick="showOnlineMenu()">📱 ONLINE (2 MOBILY)</button>
+    </div>
+    <div class="btn-group" style="margin-top:4px;">
+      <button class="btn" style="font-size: 0.72rem; padding: 6px 10px;" onclick="toggleAudio()" id="audio-toggle-btn">🔊 HUDBA: ZAP</button>
+      <button class="btn" style="font-size: 0.72rem; padding: 6px 10px;" onclick="toggleLives()">❤️ ŽIVOTY: <span id="lives-count">10</span></button>
+    </div>
+  </div>
+
+  <!-- MEZIOBRAZOVKA PO KOLE -->
+  <div id="round-pause-screen" class="overlay" style="display:none; z-index:25;">
+    <h1 id="round-winner-title" style="font-size:2.2rem; color:#ffd700;">DAVID VYHRÁL KOLO!</h1>
+    <h2 id="round-next-subtitle" style="font-size:1.1rem; color:#00ffff; margin: 10px 0;">PŘIPRAV SE NA KOLO 2</h2>
+    <div style="background: rgba(0,0,0,0.5); padding: 12px 24px; border-radius:8px; border:1px solid #ffd700; margin: 10px 0;">
+      <p id="round-score-status" style="font-size:1.1rem; color:#fff; font-weight:bold;"></p>
+    </div>
+    <button class="btn btn-red" style="margin-top:10px; padding: 12px 24px; font-size:1rem;" onclick="continueToNextRound()">▶ POKRAČOVAT DO DALŠÍHO KOLA</button>
+  </div>
+
+  <!-- GAME OVER / K.O. OBRAZOVKA -->
+  <div id="ko-screen" class="overlay" style="display:none; z-index:30;">
+    <h1 id="ko-title" style="font-size:3rem; color:#ff2255; text-shadow:0 0 20px #ff2255;">GAME OVER</h1>
+    <h2 id="ko-winner-text" style="font-size:1.4rem; color:#ffd700; margin: 10px 0;">VÍTĚZ: DAVID</h2>
+    <div class="btn-group" style="margin-top:15px;">
+      <button class="btn btn-red" onclick="restartMatch()">⚔️ NOVÝ ZÁPAS</button>
+      <button class="btn" onclick="showTitle()">🏠 HLAVNÍ MENU</button>
+    </div>
+  </div>
+
+  <!-- ONLINE MENU (ČÍSELNÝ KÓD) -->
+  <div id="online-screen" class="overlay" style="display:none;">
+    <h2>📱 ONLINE HRA NA 2 MOBILY</h2>
+    <p>Zadejte stejný kód na obou zařízeních</p>
+    <div style="margin: 10px 0;">
+      <button class="btn btn-red" onclick="createRoom()">1. VYTVOŘIT MÍSTNOST</button>
+      <p id="room-code-display" style="color:#ffd700; font-weight:bold; margin-top:6px; font-size:1.2rem;"></p>
+    </div>
+    <div style="margin: 10px 0; border-top: 1px solid rgba(255,255,255,0.2); padding-top:10px;">
+      <input type="text" id="room-code-input" placeholder="KÓD MÍSTNOSTI" maxlength="4">
+      <button class="btn" onclick="joinRoomDirect(document.getElementById('room-code-input').value.trim())" style="margin-top:6px;">2. PŘIPOJIT SE</button>
+    </div>
+    <p id="online-status" style="color:#00ffff; font-size:0.8rem; margin-top:4px;"></p>
+    <button class="btn" style="margin-top:8px;" onclick="showTitle()">ZPĚT</button>
+  </div>
+
+  <!-- VÝBĚR POSTAVY A MAPY -->
+  <div id="char-screen" class="overlay" style="display:none;">
+    <h2>VYBER SI BOJOVNÍKA A MAPU</h2>
+    <div class="char-preview-grid" id="char-grid"></div>
+    <p style="margin-top:4px; font-size:0.8rem; color:#ffd700;">VYBER GRAFICKOU ARÉNU:</p>
+    <div class="map-grid">
+      <div class="map-card selected" onclick="selectMap(0, this)"><div style="font-size:0.75rem; font-weight:bold; color:#fff;">🌸 Zahrada Sakura</div></div>
+      <div class="map-card" onclick="selectMap(1, this)"><div style="font-size:0.75rem; font-weight:bold; color:#fff;">🏯 Noční Chrám</div></div>
+      <div class="map-card" onclick="selectMap(2, this)"><div style="font-size:0.75rem; font-weight:bold; color:#fff;">⛩️ Horský Průsmyk</div></div>
+    </div>
+    <button class="btn btn-red" style="margin-top:8px;" onclick="confirmCharSelect()">START BOJE !</button>
+  </div>
+
+  <!-- TOUCH OVLÁDÁNÍ -->
+  <div id="touch-controls">
+    <div class="dpad">
+      <div></div><div class="t-btn" id="btn-up">▲</div><div></div>
+      <div class="t-btn" id="btn-left">◀</div><div class="t-btn" id="btn-down">▼</div><div class="t-btn" id="btn-right">▶</div>
+    </div>
+    <div class="action-btns">
+      <div class="t-btn btn-slide" id="btn-slide">SKLUZ</div>
+      <div class="t-btn btn-atk" id="btn-atki">KOP</div>
+      <div class="t-btn btn-spec" id="btn-speco">SHURIKEN</div>
+      <div class="t-btn btn-atk" id="btn-atkj">KATANA</div>
+      <div class="t-btn btn-def" id="btn-defg">KRYT</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function(a,b,c){if(c in b&&b[c]){var d,e=a.location,f=/javascript:/i;a.addEventListener("click",function(a){if("A"===a.target.nodeName){var c=a.target.getAttribute("href");if(!f.test(c)&&(-1!==c.indexOf("http")||-1!==c.indexOf("https"))&&-1===c.indexOf(e.host))a.preventDefault(),a.target.target="_blank",d=b.open(c)}else a.preventDefault()},!1)}})(document,window.navigator,"standalone");
+
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  // --- NAČÍTÁNÍ GRAFICKÝCH OBRÁZKŮ PRO POZADÍ ---
+  const mapImages = [new Image(), new Image(), new Image()];
+  mapImages[0].src = 'https://images.unsplash.com/photo-1528164344705-47542687990d?q=80&w=1280&auto=format&fit=crop'; // Sakura Zahrada
+  mapImages[1].src = 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=1280&auto=format&fit=crop'; // Noční Japonsko
+  mapImages[2].src = 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1280&auto=format&fit=crop'; // Horský Chrám
+  
+  let gameMode = '1p';
+  let livesMax = 10;
+  let selectedCharP1 = 0;
+  let selectedMap = 0;
+  let peer = null, conn = null, isHost = false;
+  let animFrame = 0;
+  let audioEnabled = true;
+  let isGameOver = false;
+  let isRoundPaused = false;
+  let roundNumber = 1;
+  let currentRoomCode = "";
+
+  const CHARACTERS = [
+    { name: 'DAVID', title: 'Stínový Blade', color: '#1a1a2e', headband: '#ff2255', speed: 1.6 },
+    { name: 'MATY', title: 'Ohňový Shinobi', color: '#800c0c', headband: '#ffd700', speed: 1.4 },
+    { name: 'SIMON', title: 'Větrný Ronin', color: '#0c5c38', headband: '#ffffff', speed: 1.5 },
+    { name: 'MATEJ', title: 'Bleskový Kunoichi', color: '#104e8b', headband: '#00ffff', speed: 1.55 }
+  ];
+
+  let p1 = { x: 150, y: 220, vx: 0, vy: 0, hp: 100, lives: 10, char: 0, facing: 1, state: 'idle', isGrounded: true, block: false, isSliding: false, isCrouching: false, isKnockedDown: false, hitTimer: 0, proj: null, attackType: 'punch', hasSuper: true, comboBuffer: [] };
+  let p2 = { x: 450, y: 220, vx: 0, vy: 0, hp: 100, lives: 10, char: 1, facing: -1, state: 'idle', isGrounded: true, block: false, isSliding: false, isCrouching: false, isKnockedDown: false, hitTimer: 0, proj: null, attackType: 'punch', hasSuper: true, comboBuffer: [] };
+
+  let clientInputs = { left: false, right: false, up: false, down: false, block: false };
+  let hitSparks = [];
+  let lightningEffect = null;
+
+  const sakuraPetals = Array.from({length: 22}, () => ({ x: Math.random()*640, y: Math.random()*360, speed: 0.25 + Math.random()*0.3 }));
+
+  const inputState = { left: false, right: false, up: false, down: false, block: false };
+
+  function openMainMenu() {
+    initAudio();
+    startBgmMusic();
+    document.getElementById('cover-screen').style.display = 'none';
+    document.getElementById('title-screen').style.display = 'flex';
+    renderHeroGallery();
+    initCharSelect();
+  }
+
+  function registerComboKey(player, defender, keyName) {
+    player.comboBuffer.push({ key: keyName, time: Date.now() });
+    const now = Date.now();
+    player.comboBuffer = player.comboBuffer.filter(k => now - k.time < 1800);
+
+    const seq = player.comboBuffer.map(k => k.key).join(',');
+    if (seq.includes('up,down,up,spec') && player.hasSuper) {
+      triggerSuperLightning(player, defender);
+      player.hasSuper = false;
+      player.comboBuffer = [];
+    }
+  }
+
+  function triggerSuperLightning(attacker, defender) {
+    lightningEffect = { x: defender.x, timer: 20 };
+    playLightningSfx();
+    setTimeout(() => {
+      defender.hp -= 40;
+      defender.isKnockedDown = true;
+      defender.hitTimer = 20;
+      spawnHitSpark(defender.x, defender.y);
+    }, 150);
+  }
+
+  function drawNinjaSprite(ctx, p, cInfo, animFrame) {
+    ctx.save();
+    if(p.facing === -1) ctx.scale(-1, 1);
+
+    let breath = Math.sin(animFrame * 0.04) * 1.5;
+    let walk = Math.sin(animFrame * 0.1) * (p.vx !== 0 ? 5 : 0);
+    let mainColor = p.hitTimer > 0 ? '#ff2222' : cInfo.color;
+
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.beginPath();
+    ctx.ellipse(0, 48, p.isKnockedDown ? 30 : (p.isSliding ? 28 : 14), 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (p.isKnockedDown) {
+      ctx.fillStyle = mainColor;
+      ctx.fillRect(-20, 38, 38, 10);
+      ctx.fillStyle = '#111118';
+      ctx.fillRect(-26, 40, 10, 8);
+      ctx.fillStyle = mainColor;
+      ctx.fillRect(15, 34, 12, 12);
+      ctx.fillStyle = cInfo.headband;
+      ctx.fillRect(15, 36, 12, 3);
+
+    } else if (p.isSliding) {
+      ctx.fillStyle = 'rgba(255,255,255,0.4)';
+      ctx.beginPath(); ctx.arc(-15, 45, 6, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(-22, 43, 4, 0, Math.PI*2); ctx.fill();
+
+      ctx.fillStyle = mainColor;
+      ctx.fillRect(-18, 30, 26, 12);
+      ctx.fillStyle = '#111118';
+      ctx.fillRect(-22, 36, 10, 8);
+      ctx.fillRect(8, 34, 22, 6);
+      ctx.fillRect(28, 31, 8, 9);
+
+      ctx.fillStyle = mainColor;
+      ctx.fillRect(-12, 18, 14, 14);
+      ctx.fillStyle = cInfo.headband;
+      ctx.fillRect(-12, 21, 14, 3);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(-2, 23, 3, 2);
+
+    } else if (p.isCrouching) {
+      ctx.fillStyle = '#111118';
+      ctx.fillRect(-10, 32, 8, 14); ctx.fillRect(2, 32, 8, 14);
+      ctx.fillStyle = mainColor; ctx.fillRect(-10, 10, 20, 24);
+      ctx.fillStyle = cInfo.headband; ctx.fillRect(-10, 24, 20, 4);
+      ctx.fillStyle = mainColor; ctx.fillRect(-8, -6, 16, 18);
+      ctx.fillStyle = cInfo.headband; ctx.fillRect(-8, -2, 16, 4);
+      ctx.fillStyle = p.block ? '#33ff66' : '#ffffff'; ctx.fillRect(2, 1, 4, 2);
+      ctx.fillStyle = mainColor; ctx.fillRect(6, 18, 6, 12);
+
+    } else {
+      let hitLean = p.hitTimer > 0 ? -8 : 0;
+
+      ctx.fillStyle = '#111118';
+      if (p.state === 'attack' && p.attackType === 'kick') {
+        ctx.fillRect(-8, 20, 6, 26);
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(2, 6 + breath, 24, 7);
+        ctx.fillStyle = '#111118';
+        ctx.fillRect(22, 4 + breath, 8, 10);
+      } else {
+        ctx.fillRect(-8 + walk, 20, 6, 26);
+        ctx.fillRect(2 - walk, 20, 6, 26);
+      }
+
+      ctx.fillStyle = mainColor;
+      let lean = (p.state === 'attack' && p.attackType === 'kick') ? -4 : hitLean;
+      ctx.fillRect(-10 + lean, -10 + breath, 20, 32);
+
+      ctx.fillStyle = cInfo.headband;
+      ctx.fillRect(-10 + lean, 8 + breath, 20, 4);
+
+      ctx.fillStyle = mainColor;
+      ctx.fillRect(-8 + lean, -28 + breath, 16, 18);
+
+      ctx.fillStyle = cInfo.headband;
+      ctx.fillRect(-8 + lean, -24 + breath, 16, 4);
+
+      ctx.fillStyle = p.block ? '#33ff66' : '#ffffff';
+      ctx.fillRect(2 + lean, -21 + breath, 4, 2);
+
+      ctx.fillStyle = mainColor;
+      if (p.state === 'attack') {
+        if (p.attackType === 'kick') {
+          ctx.fillRect(-14, -2 + breath, 6, 16);
+          ctx.fillRect(6, 0 + breath, 6, 14);
+        } else {
+          ctx.fillRect(6 + lean, -8 + breath, 18, 6);
+          ctx.fillStyle = '#f8fafc';
+          ctx.fillRect(22 + lean, -12 + breath, 24, 4);
+          ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(10, -8, 28, -0.5, 0.8);
+          ctx.stroke();
+        }
+      } else if (p.state === 'special') {
+        ctx.fillRect(6 + lean, -12 + breath, 18, 6);
+      } else if (p.block) {
+        ctx.fillRect(-2 + lean, -18 + breath, 6, 18);
+        ctx.fillRect(2 + lean, -18 + breath, 6, 18);
+      } else {
+        ctx.fillRect(-11 + lean, -3 + breath, 5, 16);
+        ctx.fillStyle = '#cccccc';
+        ctx.fillRect(-12 + lean, -22 + breath, 3, 22);
+      }
+    }
+    ctx.restore();
+  }
+
+  let coverFrame = 0;
+  function animateCoverArt() {
+    const ccvs = document.getElementById('cover-art');
+    if(!ccvs || document.getElementById('cover-screen').style.display === 'none') return;
+    const cctx = ccvs.getContext('2d');
+    coverFrame++;
+    cctx.fillStyle = '#0f172a'; cctx.fillRect(0,0,320,130);
+
+    let p1X = 100 + Math.sin(coverFrame * 0.02) * 12;
+    let p2X = 220 - Math.sin(coverFrame * 0.02) * 12;
+    let isAttacking = (coverFrame % 120 < 40);
+
+    cctx.save(); cctx.translate(p1X, 65);
+    drawNinjaSprite(cctx, { ...p1, facing: 1, state: isAttacking ? 'attack' : 'idle' }, CHARACTERS[0], coverFrame);
+    cctx.restore();
+
+    cctx.save(); cctx.translate(p2X, 65);
+    drawNinjaSprite(cctx, { ...p2, facing: -1, block: isAttacking }, CHARACTERS[1], coverFrame);
+    cctx.restore();
+
+    requestAnimationFrame(animateCoverArt);
+  }
+
+  function renderHeroGallery() {
+    const gal = document.getElementById('hero-gallery'); 
+    if(!gal) return;
+    gal.innerHTML = '';
+    CHARACTERS.forEach((c) => {
+      const card = document.createElement('div'); card.className = 'hero-card';
+      const cvs = document.createElement('canvas'); cvs.width = 45; cvs.height = 55;
+      const cctx = cvs.getContext('2d');
+      cctx.translate(22, 25);
+      drawNinjaSprite(cctx, { ...p1, facing: 1, state: 'idle' }, c, 0);
+      card.appendChild(cvs);
+      const lbl = document.createElement('div'); lbl.className = 'h-name'; lbl.innerText = c.name;
+      card.appendChild(lbl); gal.appendChild(card);
+    });
+  }
+
+  function initCharSelect() {
+    const grid = document.getElementById('char-grid'); 
+    if(!grid) return;
+    grid.innerHTML = '';
+    CHARACTERS.forEach((c, idx) => {
+      const card = document.createElement('div');
+      card.className = `char-card ${idx === selectedCharP1 ? 'selected' : ''}`;
+      card.onclick = () => {
+        selectedCharP1 = idx;
+        document.querySelectorAll('.char-card').forEach((el, i) => el.classList.toggle('selected', i === idx));
+      };
+      const cvs = document.createElement('canvas'); cvs.width = 50; cvs.height = 60;
+      const cctx = cvs.getContext('2d');
+      cctx.translate(25, 28);
+      drawNinjaSprite(cctx, { ...p1, facing: 1, state: 'idle' }, c, 0);
+      card.appendChild(cvs);
+      const nameDiv = document.createElement('div'); nameDiv.className = 'name'; nameDiv.innerText = c.name;
+      card.appendChild(nameDiv); grid.appendChild(card);
+    });
+  }
+
+  let audioCtx = null;
+  function initAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+
+  function startBgmMusic() {
+    if(!audioCtx || !audioEnabled) return;
+    try {
+      let notes = [220, 261, 293, 329, 293, 261];
+      let noteIdx = 0;
+      setInterval(() => {
+        if(!audioEnabled || isGameOver || isRoundPaused) return;
+        let osc = audioCtx.createOscillator();
+        let gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(notes[noteIdx % notes.length], audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+        noteIdx++;
+      }, 550);
+    } catch(e) {}
+  }
+
+  function playHitSfx() {
+    if(!audioCtx || !audioEnabled) return;
+    try {
+      let osc = audioCtx.createOscillator();
+      let gain = audioCtx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(80, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+    } catch(e) {}
+  }
+
+  function playLightningSfx() {
+    if(!audioCtx || !audioEnabled) return;
+    try {
+      let osc = audioCtx.createOscillator();
+      let gain = audioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.5);
+      gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+    } catch(e) {}
+  }
+
+  function playSfx(type) {
+    if(!audioCtx || !audioEnabled) return;
+    try {
+      let osc = audioCtx.createOscillator();
+      let gain = audioCtx.createGain();
+      osc.type = type === 'kick' ? 'triangle' : 'sawtooth';
+      osc.frequency.setValueAtTime(type === 'kick' ? 120 : 280, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+    } catch(e) {}
+  }
+
+  function toggleAudio() {
+    audioEnabled = !audioEnabled;
+    document.getElementById('audio-toggle-btn').innerText = audioEnabled ? '🔊 HUDBA: ZAP' : '🔇 HUDBA: VYP';
+  }
+
+  function createRoom() {
+    currentRoomCode = Math.floor(1000 + Math.random() * 9000).toString();
+    document.getElementById('room-code-display').innerText = 'KÓD MÍSTNOSTI: ' + currentRoomCode;
+    document.getElementById('online-status').innerText = 'Čekám na připojení soupeře...';
+
+    peer = new Peer('nb2026-' + currentRoomCode);
+    isHost = true;
+    peer.on('connection', (c) => { conn = c; setupOnlineConnection(); });
+  }
+
+  function joinRoomDirect(code) {
+    if(!code || code.length !== 4) return alert('Zadej platný 4místný kód!');
+    document.getElementById('online-status').innerText = 'Připojování k místnosti ' + code + '...';
+    peer = new Peer();
+    isHost = false;
+    peer.on('open', () => { 
+      conn = peer.connect('nb2026-' + code); 
+      setupOnlineConnection(); 
+    });
+  }
+
+  function setupOnlineConnection() {
+    conn.on('open', () => {
+      document.getElementById('online-status').innerText = 'PŘIPOJENO!';
+      setTimeout(() => startMode('online'), 500);
+    });
+
+    conn.on('data', (data) => {
+      if (isHost) {
+        if (data.type === 'input') {
+          clientInputs = data.inputs;
+        } else if (data.type === 'action') {
+          if (data.action === 'punch') handleAttack(p2, p1, 10, 'punch');
+          if (data.action === 'kick') handleAttack(p2, p1, 12, 'kick');
+          if (data.action === 'spec') handleSpecial(p2, p1);
+          if (data.action === 'slide') triggerSlide(p2, p1);
+          if (data.action === 'comboKey') registerComboKey(p2, p1, data.key);
+        }
+      } else {
+        if (data.type === 'gameState') {
+          p1 = data.p1;
+          p2 = data.p2;
+          selectedMap = data.selectedMap;
+          lightningEffect = data.lightningEffect;
+          hitSparks = data.hitSparks;
+          isGameOver = data.isGameOver;
+          isRoundPaused = data.isRoundPaused;
+        }
+      }
+    });
+  }
+
+  function sendHostGameState() {
+    if (conn && conn.open && isHost) {
+      conn.send({
+        type: 'gameState',
+        p1: p1,
+        p2: p2,
+        selectedMap: selectedMap,
+        lightningEffect: lightningEffect,
+        hitSparks: hitSparks,
+        isGameOver: isGameOver,
+        isRoundPaused: isRoundPaused
+      });
+    }
+  }
+
+  function sendClientInput() {
+    if (conn && conn.open && !isHost) {
+      conn.send({ type: 'input', inputs: inputState });
+    }
+  }
+
+  function sendClientAction(actionName, extraKey) {
+    if (conn && conn.open && !isHost) {
+      conn.send({ type: 'action', action: actionName, key: extraKey });
+    }
+  }
+
+  function selectMap(idx, el) {
+    selectedMap = idx;
+    document.querySelectorAll('.map-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function toggleLives() {
+    livesMax = livesMax === 10 ? 3 : 10;
+    document.getElementById('lives-count').innerText = livesMax;
+  }
+
+  function showTitle() {
+    isGameOver = false; isRoundPaused = false;
+    document.getElementById('ko-screen').style.display = 'none';
+    document.getElementById('round-pause-screen').style.display = 'none';
+    document.getElementById('title-screen').style.display = 'flex';
+    document.getElementById('online-screen').style.display = 'none';
+    document.getElementById('char-screen').style.display = 'none';
+  }
+
+  function showOnlineMenu() {
+    document.getElementById('title-screen').style.display = 'none';
+    document.getElementById('online-screen').style.display = 'flex';
+  }
+
+  function startMode(mode) {
+    gameMode = mode;
+    document.getElementById('title-screen').style.display = 'none';
+    document.getElementById('online-screen').style.display = 'none';
+    document.getElementById('char-screen').style.display = 'flex';
+  }
+
+  function confirmCharSelect() {
+    document.getElementById('char-screen').style.display = 'none';
+    p1.char = selectedCharP1; p1.lives = livesMax; p2.lives = livesMax;
+    p1.hasSuper = true; p2.hasSuper = true;
+    if(gameMode === '1p') p2.char = (selectedCharP1 + 1) % CHARACTERS.length;
+    roundNumber = 1;
+    resetRound();
+    isGameOver = false; isRoundPaused = false;
+    requestAnimationFrame(gameLoop);
+  }
+
+  function restartMatch() {
+    document.getElementById('ko-screen').style.display = 'none';
+    document.getElementById('round-pause-screen').style.display = 'none';
+    p1.lives = livesMax; p2.lives = livesMax;
+    p1.hasSuper = true; p2.hasSuper = true;
+    roundNumber = 1;
+    resetRound();
+    isGameOver = false; isRoundPaused = false;
+    requestAnimationFrame(gameLoop);
+  }
+
+  function spawnHitSpark(x, y) {
+    hitSparks.push({ x: x, y: y, radius: 18, timer: 8 });
+  }
+
+  function handleAttack(attacker, defender, damage = 10, type = 'punch') {
+    if(attacker.state === 'attack' || attacker.isKnockedDown || isRoundPaused) return;
+    attacker.state = 'attack';
+    attacker.attackType = type;
+    playSfx(type);
+    setTimeout(() => attacker.state = 'idle', 400);
+
+    let hitRange = type === 'kick' ? 65 : 55;
+    if(Math.abs(attacker.x - defender.x) < hitRange && !defender.isKnockedDown) {
+      if(!defender.block) {
+        defender.hp -= damage;
+        defender.hitTimer = 10;
+        defender.vx = attacker.facing * (type === 'kick' ? 3.5 : 2.2);
+        spawnHitSpark(defender.x, defender.y - 10);
+        playHitSfx();
+      } else {
+        defender.hp -= 2;
+      }
+    }
+  }
+
+  function handleSpecial(attacker, defender) {
+    if(attacker.state === 'special' || attacker.isKnockedDown || isRoundPaused) return;
+    attacker.state = 'special';
+    attacker.proj = { x: attacker.x + attacker.facing * 20, y: attacker.y - 10, vx: attacker.facing * 3.8, rot: 0 };
+    registerComboKey(attacker, defender, 'spec');
+    setTimeout(() => attacker.state = 'idle', 500);
+  }
+
+  function triggerSlide(p, defender) {
+    if(p.isSliding || p.isKnockedDown || isRoundPaused) return;
+    p.isSliding = true;
+    p.vx = p.facing * (CHARACTERS[p.char].speed * 1.5);
+
+    let checkHit = setInterval(() => {
+      if(Math.abs(p.x - defender.x) < 40 && !defender.isKnockedDown) {
+        defender.isKnockedDown = true;
+        defender.hp -= 12;
+        defender.hitTimer = 12;
+        defender.vx = p.facing * 2.5;
+        spawnHitSpark(defender.x, defender.y + 15);
+        playHitSfx();
+      }
+    }, 40);
+
+    setTimeout(() => { p.isSliding = false; clearInterval(checkHit); }, 550);
+  }
+
+  function resetRound() {
+    p1.x = 150; p1.y = 220; p1.hp = 100; p1.vx = 0; p1.vy = 0; p1.proj = null; p1.isKnockedDown = false; p1.comboBuffer = [];
+    p2.x = 450; p2.y = 220; p2.hp = 100; p2.vx = 0; p2.vy = 0; p2.proj = null; p2.isKnockedDown = false; p2.comboBuffer = [];
+  }
+
+  function triggerRoundPause(winnerName) {
+    isRoundPaused = true;
+    roundNumber++;
+    document.getElementById('round-winner-title').innerText = "🏆 " + winnerName + " VYHRÁL KOLO!";
+    document.getElementById('round-next-subtitle').innerText = "PŘIPRAV SE NA KOLO " + roundNumber;
+    document.getElementById('round-score-status').innerText = `${CHARACTERS[p1.char].name}: ${'❤️'.repeat(p1.lives)}  |  ${CHARACTERS[p2.char].name}: ${'❤️'.repeat(p2.lives)}`;
+    document.getElementById('round-pause-screen').style.display = 'flex';
+  }
+
+  function continueToNextRound() {
+    document.getElementById('round-pause-screen').style.display = 'none';
+    resetRound();
+    isRoundPaused = false;
+    requestAnimationFrame(gameLoop);
+  }
+
+  function triggerGameOver(winnerName) {
+    isGameOver = true;
+    document.getElementById('ko-title').innerText = "K.O. / GAME OVER";
+    document.getElementById('ko-winner-text').innerText = "🏆 ABSOLUTNÍ VÍTĚZ: " + winnerName;
+    document.getElementById('ko-screen').style.display = 'flex';
+  }
+
+  // 🖼️ VYKRESLOVÁNÍ NAKRESLENÉHO / OBRÁZKOVÉHO POZADÍ
+  function drawBackground() {
+    let currentMapImg = mapImages[selectedMap];
+    if (currentMapImg && currentMapImg.complete) {
+      // Vykreslení obrázkového pozadí přes celý Canvas
+      ctx.drawImage(currentMapImg, 0, 0, 640, 360);
+    } else {
+      // Záložní barva při načítání
+      ctx.fillStyle = '#1e293b'; ctx.fillRect(0, 0, 640, 360);
+    }
+
+    // Podlaha arény
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.fillRect(0, 265, 640, 95);
+
+    // Animované padající lístky sakury pro atmosféru
+    if (selectedMap === 0) {
+      ctx.fillStyle = '#f472b6';
+      sakuraPetals.forEach(p => {
+        p.y += p.speed; p.x -= 0.2;
+        if(p.y > 360) { p.y = -10; p.x = Math.random()*640; }
+        ctx.fillRect(p.x, p.y, 4, 4);
+      });
+    }
+  }
+
+  function drawHUD() {
+    ctx.fillStyle = '#0f172a'; ctx.fillRect(20, 20, 200, 16); ctx.fillRect(420, 20, 200, 16);
+    ctx.fillStyle = '#ff2255'; ctx.fillRect(20, 20, Math.max(0, p1.hp * 2), 16); ctx.fillRect(620 - Math.max(0, p2.hp * 2), 20, Math.max(0, p2.hp * 2), 16);
+    
+    ctx.fillStyle = p1.hasSuper ? '#00ffff' : '#555555'; ctx.font = 'bold 10px sans-serif';
+    ctx.fillText(p1.hasSuper ? '⚡ ULT: READY' : '⚡ ULT: USED', 20, 48);
+
+    ctx.fillStyle = p2.hasSuper ? '#00ffff' : '#555555';
+    ctx.fillText(p2.hasSuper ? '⚡ ULT: READY' : '⚡ ULT: USED', 540, 48);
+
+    ctx.fillStyle = '#ffd700'; ctx.font = 'bold 12px sans-serif';
+    ctx.fillText(CHARACTERS[p1.char].name + ' ' + '❤️'.repeat(p1.lives), 20, 15);
+    ctx.fillText('❤️'.repeat(p2.lives) + ' ' + CHARACTERS[p2.char].name, 440, 15);
+  }
+
+  function updateAI() {
+    if(gameMode !== '1p' || isGameOver || isRoundPaused) return;
+    
+    if(p2.isKnockedDown) {
+      if(Math.random() < 0.02) p2.isKnockedDown = false;
+      return;
+    }
+
+    let dist = p2.x - p1.x;
+    if(Math.abs(dist) > 45) {
+      p2.vx = dist > 0 ? -CHARACTERS[p2.char].speed * 0.7 : CHARACTERS[p2.char].speed * 0.7;
+      p2.isCrouching = false;
+    } else {
+      p2.vx = 0;
+      if(Math.random() < 0.015) handleAttack(p2, p1, 10, 'punch');
+      if(Math.random() < 0.01) handleAttack(p2, p1, 12, 'kick');
+      if(Math.random() < 0.005) handleSpecial(p2, p1);
+      if(Math.random() < 0.008) p2.isCrouching = !p2.isCrouching;
+
+      if(p2.hasSuper && Math.random() < 0.003) {
+        triggerSuperLightning(p2, p1);
+        p2.hasSuper = false;
+      }
+    }
+  }
+
+  function gameLoop() {
+    animFrame++; ctx.clearRect(0, 0, 640, 360);
+    drawBackground();
+
+    if (gameMode === 'online') {
+      if (isHost) {
+        sendHostGameState();
+      } else {
+        sendClientInput();
+        drawNinjaSprite(ctx, p1, CHARACTERS[p1.char], animFrame);
+        drawNinjaSprite(ctx, p2, CHARACTERS[p2.char], animFrame);
+        drawHUD();
+        requestAnimationFrame(gameLoop);
+        return;
+      }
+    } else if(gameMode === '1p') {
+      updateAI();
+    }
+
+    if (isGameOver || isRoundPaused) {
+      requestAnimationFrame(gameLoop);
+      return;
+    }
+
+    let p1In = inputState;
+    let p2In = (gameMode === 'online') ? clientInputs : {};
+
+    if(p1.isKnockedDown && p1In.up) p1.isKnockedDown = false;
+    if (!p1.isSliding && !p1.isKnockedDown) {
+      p1.vx = 0;
+      if (p1In.left) p1.vx = -CHARACTERS[p1.char].speed;
+      if (p1In.right) p1.vx = CHARACTERS[p1.char].speed;
+      if (p1In.up && p1.isGrounded) { p1.vy = -6.5; p1.isGrounded = false; }
+      p1.isCrouching = p1In.down;
+      p1.block = p1In.block;
+    }
+
+    if(gameMode === 'online') {
+      if(p2.isKnockedDown && p2In.up) p2.isKnockedDown = false;
+      if (!p2.isSliding && !p2.isKnockedDown) {
+        p2.vx = 0;
+        if (p2In.left) p2.vx = -CHARACTERS[p2.char].speed;
+        if (p2In.right) p2.vx = CHARACTERS[p2.char].speed;
+        if (p2In.up && p2.isGrounded) { p2.vy = -6.5; p2.isGrounded = false; }
+        p2.isCrouching = p2In.down;
+        p2.block = p2In.block;
+      }
+    }
+
+    [p1, p2].forEach((p, idx) => {
+      if(p.hitTimer > 0) p.hitTimer--;
+      p.x += p.vx; p.y += p.vy; p.vy += 0.22;
+      if(p.y >= 220) { p.y = 220; p.vy = 0; p.isGrounded = true; }
+      p.x = Math.max(30, Math.min(610, p.x));
+
+      if(p.hp <= 0) {
+        p.lives--;
+        let winnerName = (idx === 0) ? CHARACTERS[p2.char].name : CHARACTERS[p1.char].name;
+        if(p.lives > 0) triggerRoundPause(winnerName);
+        else triggerGameOver(winnerName);
+      }
+    });
+
+    if(p1.x < p2.x) { p1.facing = 1; p2.facing = -1; }
+    else { p1.facing = -1; p2.facing = 1; }
+
+    ctx.save(); ctx.translate(p1.x, p1.y);
+    drawNinjaSprite(ctx, p1, CHARACTERS[p1.char], animFrame);
+    ctx.restore();
+
+    ctx.save(); ctx.translate(p2.x, p2.y);
+    drawNinjaSprite(ctx, p2, CHARACTERS[p2.char], animFrame);
+    ctx.restore();
+
+    if(lightningEffect) {
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.fillRect(0, 0, 640, 360);
+      ctx.strokeStyle = '#00ffff'; ctx.lineWidth = 12;
+      ctx.beginPath();
+      ctx.moveTo(lightningEffect.x + (Math.random()*20-10), 0);
+      ctx.lineTo(lightningEffect.x + (Math.random()*30-15), 100);
+      ctx.lineTo(lightningEffect.x + (Math.random()*20-10), 180);
+      ctx.lineTo(lightningEffect.x, 260);
+      ctx.stroke();
+      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 5; ctx.stroke();
+      lightningEffect.timer--;
+      if(lightningEffect.timer <= 0) lightningEffect = null;
+    }
+
+    [p1, p2].forEach(p => {
+      if(p.proj) {
+        p.proj.x += p.proj.vx; p.proj.rot += 0.2;
+        ctx.save(); ctx.translate(p.proj.x, p.proj.y); ctx.rotate(p.proj.rot);
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(-6, -2, 12, 4); ctx.fillRect(-2, -6, 4, 12);
+        ctx.restore();
+
+        let other = (p === p1) ? p2 : p1;
+        let hitHeight = other.isCrouching ? 12 : 25;
+        if(Math.abs(p.proj.x - other.x) < hitHeight && !other.isKnockedDown) {
+          other.hp -= other.block ? 4 : 18;
+          other.hitTimer = 10;
+          spawnHitSpark(other.x, other.y - 10);
+          playHitSfx();
+          p.proj = null;
+        } else if(p.proj.x < 0 || p.proj.x > 640) p.proj = null;
+      }
+    });
+
+    hitSparks.forEach((s, idx) => {
+      ctx.fillStyle = '#ffaa00'; ctx.beginPath(); ctx.arc(s.x, s.y, s.radius, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(s.x, s.y, s.radius * 0.5, 0, Math.PI*2); ctx.fill();
+      s.radius -= 1.0; s.timer--;
+      if(s.timer <= 0) hitSparks.splice(idx, 1);
+    });
+
+    drawHUD();
+    requestAnimationFrame(gameLoop);
+  }
+
+  function setupTouchBtn(id, onStart, onEnd, comboKey) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    
+    el.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      initAudio();
+      el.classList.add('active');
+      let myP = getMyPlayer();
+      let otherP = getOtherPlayer();
+
+      if (gameMode === 'online' && !isHost) {
+        if (comboKey) sendClientAction('comboKey', comboKey);
+      } else {
+        if (comboKey) registerComboKey(myP, otherP, comboKey);
+      }
+      onStart();
+    }, { passive: false });
+
+    el.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      el.classList.remove('active');
+      if (onEnd) onEnd();
+    }, { passive: false });
+  }
+
+  function getMyPlayer() { return (gameMode === 'online' && !isHost) ? p2 : p1; }
+  function getOtherPlayer() { return getMyPlayer() === p1 ? p2 : p1; }
+
+  setupTouchBtn('btn-left', () => inputState.left = true, () => inputState.left = false);
+  setupTouchBtn('btn-right', () => inputState.right = true, () => inputState.right = false);
+  setupTouchBtn('btn-up', () => inputState.up = true, () => inputState.up = false, 'up');
+  setupTouchBtn('btn-down', () => inputState.down = true, () => inputState.down = false, 'down');
+
+  setupTouchBtn('btn-atkj', () => {
+    if (gameMode === 'online' && !isHost) sendClientAction('punch');
+    else handleAttack(getMyPlayer(), getOtherPlayer(), 10, 'punch');
+  });
+  setupTouchBtn('btn-atki', () => {
+    if (gameMode === 'online' && !isHost) sendClientAction('kick');
+    else handleAttack(getMyPlayer(), getOtherPlayer(), 12, 'kick');
+  });
+  setupTouchBtn('btn-speco', () => {
+    if (gameMode === 'online' && !isHost) sendClientAction('spec');
+    else handleSpecial(getMyPlayer(), getOtherPlayer());
+  }, null, 'spec');
+  setupTouchBtn('btn-slide', () => {
+    if (gameMode === 'online' && !isHost) sendClientAction('slide');
+    else triggerSlide(getMyPlayer(), getOtherPlayer());
+  });
+  setupTouchBtn('btn-defg', () => inputState.block = true, () => inputState.block = false);
+
+  window.addEventListener('keydown', e => {
+    initAudio();
+    if (document.getElementById('cover-screen').style.display !== 'none') return openMainMenu();
+    let k = e.key.toLowerCase();
+    let myP = getMyPlayer();
+    let otherP = getOtherPlayer();
+
+    if(k === 'a') inputState.left = true;
+    if(k === 'd') inputState.right = true;
+    if(k === 'w' || e.key === 'ArrowUp') { 
+      inputState.up = true; 
+      if (gameMode === 'online' && !isHost) sendClientAction('comboKey', 'up');
+      else registerComboKey(myP, otherP, 'up'); 
+    }
+    if(k === 's' || e.key === 'ArrowDown') { 
+      inputState.down = true; 
+      if (gameMode === 'online' && !isHost) sendClientAction('comboKey', 'down');
+      else registerComboKey(myP, otherP, 'down'); 
+    }
+    if(k === 'g') inputState.block = true;
+    if(k === 'j') {
+      if (gameMode === 'online' && !isHost) sendClientAction('punch');
+      else handleAttack(myP, otherP, 10, 'punch');
+    }
+    if(k === 'i') {
+      if (gameMode === 'online' && !isHost) sendClientAction('kick');
+      else handleAttack(myP, otherP, 12, 'kick');
+    }
+    if(k === 'o') { 
+      if (gameMode === 'online' && !isHost) {
+        sendClientAction('spec');
+        sendClientAction('comboKey', 'spec');
+      } else {
+        handleSpecial(myP, otherP); 
+        registerComboKey(myP, otherP, 'spec'); 
+      }
+    }
+    if(e.code === 'Space') { 
+      e.preventDefault(); 
+      if (gameMode === 'online' && !isHost) sendClientAction('slide');
+      else triggerSlide(myP, otherP); 
+    }
+  });
+
+  window.addEventListener('keyup', e => {
+    let k = e.key.toLowerCase();
+    if(k === 'a') inputState.left = false;
+    if(k === 'd') inputState.right = false;
+    if(k === 'w' || e.key === 'ArrowUp') inputState.up = false;
+    if(k === 's' || e.key === 'ArrowDown') inputState.down = false;
+    if(k === 'g') inputState.block = false;
+  });
+
+  animateCoverArt();
+</script>
+</body>
+</html>
