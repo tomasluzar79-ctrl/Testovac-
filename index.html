@@ -41,14 +41,14 @@
   input[type="text"] { padding: 8px 12px; font-size: 1.1rem; border: 2px solid #ffd700; background: #0c101c; color: #ffd700; text-align: center; font-family: inherit; width: 180px; border-radius: 6px; text-transform: uppercase; font-weight: bold; letter-spacing: 2px; }
   
   .hero-gallery { display: flex; gap: 10px; margin: 6px 0 10px 0; }
-  .hero-card { width: 75px; height: 95px; background: rgba(20, 28, 48, 0.85); border: 2px solid #ffd700; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.6); }
-  .hero-card canvas { width: 45px; height: 55px; display: block; image-rendering: pixelated; }
-  .hero-card .h-name { font-size: 0.68rem; font-weight: bold; color: #ffd700; margin-top: 2px; }
+  .hero-card { width: 85px; height: 110px; background: rgba(20, 28, 48, 0.85); border: 2px solid #ffd700; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.6); }
+  .hero-card img { width: 75px; height: 75px; object-fit: cover; border-radius: 4px; border: 1px solid #ffd700; }
+  .hero-card .h-name { font-size: 0.68rem; font-weight: bold; color: #ffd700; margin-top: 3px; }
 
   .char-preview-grid { display: flex; gap: 10px; margin: 10px 0; }
-  .char-card { background: #141c30; border: 2px solid #2a385c; padding: 8px; border-radius: 8px; width: 120px; text-align: center; cursor: pointer; transition: 0.2s; }
+  .char-card { background: #141c30; border: 2px solid #2a385c; padding: 8px; border-radius: 8px; width: 115px; text-align: center; cursor: pointer; transition: 0.2s; }
   .char-card.selected { border-color: #ff2255; background: #2a1830; box-shadow: 0 0 20px #ff2255; transform: scale(1.05); }
-  .char-card canvas { width: 50px; height: 60px; margin: 0 auto 4px; display: block; image-rendering: pixelated; border-radius: 6px; background: rgba(0,0,0,0.3); }
+  .char-card img { width: 95px; height: 75px; object-fit: cover; margin: 0 auto 4px; display: block; border-radius: 6px; border: 1px solid #ffd700; background: rgba(0,0,0,0.3); }
   .char-card .name { font-size: 0.8rem; font-weight: bold; color: #ffd700; }
 
   .map-grid { display: flex; gap: 10px; margin: 10px 0; }
@@ -169,10 +169,10 @@
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
 
-  // Výška podlahy – bojovníci stojí přesně na zemi
-  const GROUND_Y = 305;
+  // Výška podlahy – bojovníci stojí přesně na cestě
+  const GROUND_Y = 300;
 
-  // NAČÍTÁNÍ OBRÁZKŮ ZE SLOŽKY images/
+  // NAČÍTÁNÍ POZADÍ A ÚVODNÍHO OBRÁZKU
   const mapImages = [new Image(), new Image(), new Image()];
   mapImages[0].src = 'images/bg1.jpg';
   mapImages[1].src = 'images/bg2.jpg';
@@ -193,11 +193,12 @@
   let roundNumber = 1;
   let currentRoomCode = "";
 
+  // DEFINICE POSTAV S OBRÁZKY PRO MENU
   const CHARACTERS = [
-    { name: 'DAVID', title: 'Stínový Blade', color: '#1a1a2e', headband: '#ff2255', speed: 1.6 },
-    { name: 'MATY', title: 'Ohňový Shinobi', color: '#800c0c', headband: '#ffd700', speed: 1.4 },
-    { name: 'SIMON', title: 'Větrný Ronin', color: '#0c5c38', headband: '#ffffff', speed: 1.5 },
-    { name: 'MATEJ', title: 'Bleskový Kunoichi', color: '#104e8b', headband: '#00ffff', speed: 1.55 }
+    { name: 'DAVID', title: 'Stínový Blade', color: '#1a1a2e', headband: '#ff2255', speed: 1.6, img: 'images/david.png' },
+    { name: 'MATĚJ', title: 'Bleskový Kunoichi', color: '#104e8b', headband: '#00ffff', speed: 1.55, img: 'images/matej.png' },
+    { name: 'ŠIMON', title: 'Větrný Ronin', color: '#0c5c38', headband: '#ffffff', speed: 1.5, img: 'images/simon.png' },
+    { name: 'MATY', title: 'Ohňový Shinobi', color: '#800c0c', headband: '#ffd700', speed: 1.4, img: 'images/maty.png' }
   ];
 
   let p1 = { x: 150, y: GROUND_Y, vx: 0, vy: 0, hp: 100, lives: 10, char: 0, facing: 1, state: 'idle', isGrounded: true, block: false, isSliding: false, isCrouching: false, isKnockedDown: false, hitTimer: 0, proj: null, attackType: 'punch', hasSuper: true, comboBuffer: [] };
@@ -384,22 +385,21 @@
     requestAnimationFrame(animateCoverArt);
   }
 
+  // NAČÍTÁNÍ OBRÁZKŮ POSTAV DO GALERIE V MENU
   function renderHeroGallery() {
     const gal = document.getElementById('hero-gallery'); 
     if(!gal) return;
     gal.innerHTML = '';
     CHARACTERS.forEach((c) => {
       const card = document.createElement('div'); card.className = 'hero-card';
-      const cvs = document.createElement('canvas'); cvs.width = 45; cvs.height = 55;
-      const cctx = cvs.getContext('2d');
-      cctx.translate(22, 48);
-      drawNinjaSprite(cctx, { ...p1, facing: 1, state: 'idle' }, c, 0);
-      card.appendChild(cvs);
+      const img = document.createElement('img'); img.src = c.img;
+      card.appendChild(img);
       const lbl = document.createElement('div'); lbl.className = 'h-name'; lbl.innerText = c.name;
       card.appendChild(lbl); gal.appendChild(card);
     });
   }
 
+  // VÝBĚR POSTAVY POMOCÍ NOVÝCH PROFILOVÝCH OBRÁZKŮ
   function initCharSelect() {
     const grid = document.getElementById('char-grid'); 
     if(!grid) return;
@@ -411,11 +411,8 @@
         selectedCharP1 = idx;
         document.querySelectorAll('.char-card').forEach((el, i) => el.classList.toggle('selected', i === idx));
       };
-      const cvs = document.createElement('canvas'); cvs.width = 50; cvs.height = 60;
-      const cctx = cvs.getContext('2d');
-      cctx.translate(25, 52);
-      drawNinjaSprite(cctx, { ...p1, facing: 1, state: 'idle' }, c, 0);
-      card.appendChild(cvs);
+      const img = document.createElement('img'); img.src = c.img;
+      card.appendChild(img);
       const nameDiv = document.createElement('div'); nameDiv.className = 'name'; nameDiv.innerText = c.name;
       card.appendChild(nameDiv); grid.appendChild(card);
     });
@@ -707,7 +704,6 @@
     document.getElementById('ko-screen').style.display = 'flex';
   }
 
-  // VYKRESLENÍ GRAFICKÉHO POZADÍ ARÉNY
   function drawBackground() {
     let currentMapImg = mapImages[selectedMap];
     if (currentMapImg && currentMapImg.complete && currentMapImg.naturalWidth !== 0) {
