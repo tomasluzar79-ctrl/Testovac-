@@ -249,7 +249,7 @@
     }, 150);
   }
 
-  // VYKRESLENÍ POSTAVY POMOCÍ SPRITE SHEETU (Zmenšeno a zarovnáno na podlahu)
+  // VYKRESLENÍ POSTAVY Z MŘÍŽKY 2752x1536 (688x192 px na 1 políčko)
   function drawNinjaSprite(ctx, p, cInfo, animFrame) {
     ctx.save();
     if(p.facing === -1) {
@@ -259,37 +259,37 @@
     // Stín pod postavičkou
     ctx.fillStyle = 'rgba(0,0,0,0.35)';
     ctx.beginPath();
-    ctx.ellipse(0, 0, p.isKnockedDown ? 25 : (p.isSliding ? 22 : 12), 4, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, 0, p.isKnockedDown ? 25 : (p.isSliding ? 22 : 14), 5, 0, 0, Math.PI * 2);
     ctx.fill();
 
     let img = cInfo.spriteObj;
     if (img && img.complete && img.naturalWidth !== 0) {
-      const fWidth = 96;
-      const fHeight = 96;
+      const fWidth = 688;
+      const fHeight = 192;
       let row = 0;
       let col = 0;
 
       if (p.isKnockedDown) {
-        row = 8;
+        row = 7;
         col = Math.min(3, Math.floor(animFrame / 10));
       } else if (p.isSliding) {
-        row = 7;
-        col = Math.floor(animFrame / 6) % 3;
-      } else if (p.isCrouching) {
         row = 6;
+        col = Math.floor(animFrame / 6) % 4;
+      } else if (p.isCrouching) {
+        row = 5;
         col = 0;
       } else if (p.block) {
-        row = 5;
+        row = 4;
         col = Math.floor(animFrame / 15) % 2;
       } else if (p.state === 'special') {
-        row = 4;
-        col = Math.floor(animFrame / 10) % 2;
+        row = 3;
+        col = Math.floor(animFrame / 10) % 4;
       } else if (p.state === 'attack') {
         if (p.attackType === 'kick') {
-          row = 3;
-          col = Math.min(2, Math.floor(animFrame / 5));
-        } else {
           row = 2;
+          col = Math.min(3, Math.floor(animFrame / 5));
+        } else {
+          row = 1;
           col = Math.min(3, Math.floor(animFrame / 5));
         }
       } else if (p.vx !== 0) {
@@ -303,7 +303,7 @@
       ctx.drawImage(
         img,
         col * fWidth, row * fHeight, fWidth, fHeight,
-        -34, -72, 68, 68
+        -35, -75, 70, 70
       );
     } else {
       ctx.fillStyle = cInfo.color || '#ff2255';
