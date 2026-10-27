@@ -138,7 +138,7 @@
   <div id="char-screen" class="overlay" style="display:none;">
     <h2>VYBER SI BOJOVNÍKA A MAPU</h2>
     <div class="char-preview-grid" id="char-grid"></div>
-    <p style="margin-top:4px; font-size:0.8rem; color:#ffd700;">VYBER GRAFICKOU ARÉNU:</p>
+    <p style="margin-top:4px; font-size:0.8rem; color:#ffd700;">VYBER ARÉNU:</p>
     <div class="map-grid">
       <div class="map-card selected" onclick="selectMap(0, this)"><div style="font-size:0.75rem; font-weight:bold; color:#fff;">🌸 Zahrada Sakura</div></div>
       <div class="map-card" onclick="selectMap(1, this)"><div style="font-size:0.75rem; font-weight:bold; color:#fff;">🏯 Noční Chrám</div></div>
@@ -169,11 +169,17 @@
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
 
-  // --- NAČÍTÁNÍ GRAFICKÝCH OBRÁZKŮ PRO POZADÍ ---
+  // Výška podlahy – bojovníci stojí přesně na zemi
+  const GROUND_Y = 265;
+
+  // NAČÍTÁNÍ OBRÁZKŮ ZE SLOŽKY images/
   const mapImages = [new Image(), new Image(), new Image()];
-  mapImages[0].src = 'https://images.unsplash.com/photo-1528164344705-47542687990d?q=80&w=1280&auto=format&fit=crop'; // Sakura Zahrada
-  mapImages[1].src = 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=1280&auto=format&fit=crop'; // Noční Japonsko
-  mapImages[2].src = 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1280&auto=format&fit=crop'; // Horský Chrám
+  mapImages[0].src = 'images/bg1.jpg';
+  mapImages[1].src = 'images/bg2.jpg';
+  mapImages[2].src = 'images/bg3.jpg';
+
+  const coverImage = new Image();
+  coverImage.src = 'images/cover.jpg';
   
   let gameMode = '1p';
   let livesMax = 10;
@@ -194,8 +200,8 @@
     { name: 'MATEJ', title: 'Bleskový Kunoichi', color: '#104e8b', headband: '#00ffff', speed: 1.55 }
   ];
 
-  let p1 = { x: 150, y: 220, vx: 0, vy: 0, hp: 100, lives: 10, char: 0, facing: 1, state: 'idle', isGrounded: true, block: false, isSliding: false, isCrouching: false, isKnockedDown: false, hitTimer: 0, proj: null, attackType: 'punch', hasSuper: true, comboBuffer: [] };
-  let p2 = { x: 450, y: 220, vx: 0, vy: 0, hp: 100, lives: 10, char: 1, facing: -1, state: 'idle', isGrounded: true, block: false, isSliding: false, isCrouching: false, isKnockedDown: false, hitTimer: 0, proj: null, attackType: 'punch', hasSuper: true, comboBuffer: [] };
+  let p1 = { x: 150, y: GROUND_Y, vx: 0, vy: 0, hp: 100, lives: 10, char: 0, facing: 1, state: 'idle', isGrounded: true, block: false, isSliding: false, isCrouching: false, isKnockedDown: false, hitTimer: 0, proj: null, attackType: 'punch', hasSuper: true, comboBuffer: [] };
+  let p2 = { x: 450, y: GROUND_Y, vx: 0, vy: 0, hp: 100, lives: 10, char: 1, facing: -1, state: 'idle', isGrounded: true, block: false, isSliding: false, isCrouching: false, isKnockedDown: false, hitTimer: 0, proj: null, attackType: 'punch', hasSuper: true, comboBuffer: [] };
 
   let clientInputs = { left: false, right: false, up: false, down: false, block: false };
   let hitSparks = [];
@@ -234,7 +240,7 @@
       defender.hp -= 40;
       defender.isKnockedDown = true;
       defender.hitTimer = 20;
-      spawnHitSpark(defender.x, defender.y);
+      spawnHitSpark(defender.x, defender.y - 30);
     }, 150);
   }
 
@@ -248,127 +254,132 @@
 
     ctx.fillStyle = 'rgba(0,0,0,0.35)';
     ctx.beginPath();
-    ctx.ellipse(0, 48, p.isKnockedDown ? 30 : (p.isSliding ? 28 : 14), 4, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, 0, p.isKnockedDown ? 30 : (p.isSliding ? 28 : 14), 4, 0, 0, Math.PI * 2);
     ctx.fill();
 
     if (p.isKnockedDown) {
       ctx.fillStyle = mainColor;
-      ctx.fillRect(-20, 38, 38, 10);
+      ctx.fillRect(-20, -10, 38, 10);
       ctx.fillStyle = '#111118';
-      ctx.fillRect(-26, 40, 10, 8);
+      ctx.fillRect(-26, -8, 10, 8);
       ctx.fillStyle = mainColor;
-      ctx.fillRect(15, 34, 12, 12);
+      ctx.fillRect(15, -14, 12, 12);
       ctx.fillStyle = cInfo.headband;
-      ctx.fillRect(15, 36, 12, 3);
+      ctx.fillRect(15, -12, 12, 3);
 
     } else if (p.isSliding) {
       ctx.fillStyle = 'rgba(255,255,255,0.4)';
-      ctx.beginPath(); ctx.arc(-15, 45, 6, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.arc(-22, 43, 4, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(-15, -3, 6, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(-22, -5, 4, 0, Math.PI*2); ctx.fill();
 
       ctx.fillStyle = mainColor;
-      ctx.fillRect(-18, 30, 26, 12);
+      ctx.fillRect(-18, -18, 26, 12);
       ctx.fillStyle = '#111118';
-      ctx.fillRect(-22, 36, 10, 8);
-      ctx.fillRect(8, 34, 22, 6);
-      ctx.fillRect(28, 31, 8, 9);
+      ctx.fillRect(-22, -12, 10, 8);
+      ctx.fillRect(8, -14, 22, 6);
+      ctx.fillRect(28, -17, 8, 9);
 
       ctx.fillStyle = mainColor;
-      ctx.fillRect(-12, 18, 14, 14);
+      ctx.fillRect(-12, -30, 14, 14);
       ctx.fillStyle = cInfo.headband;
-      ctx.fillRect(-12, 21, 14, 3);
+      ctx.fillRect(-12, -27, 14, 3);
       ctx.fillStyle = '#ffffff';
-      ctx.fillRect(-2, 23, 3, 2);
+      ctx.fillRect(-2, -25, 3, 2);
 
     } else if (p.isCrouching) {
       ctx.fillStyle = '#111118';
-      ctx.fillRect(-10, 32, 8, 14); ctx.fillRect(2, 32, 8, 14);
-      ctx.fillStyle = mainColor; ctx.fillRect(-10, 10, 20, 24);
-      ctx.fillStyle = cInfo.headband; ctx.fillRect(-10, 24, 20, 4);
-      ctx.fillStyle = mainColor; ctx.fillRect(-8, -6, 16, 18);
-      ctx.fillStyle = cInfo.headband; ctx.fillRect(-8, -2, 16, 4);
-      ctx.fillStyle = p.block ? '#33ff66' : '#ffffff'; ctx.fillRect(2, 1, 4, 2);
-      ctx.fillStyle = mainColor; ctx.fillRect(6, 18, 6, 12);
+      ctx.fillRect(-10, -16, 8, 16); ctx.fillRect(2, -16, 8, 16);
+      ctx.fillStyle = mainColor; ctx.fillRect(-10, -38, 20, 24);
+      ctx.fillStyle = cInfo.headband; ctx.fillRect(-10, -24, 20, 4);
+      ctx.fillStyle = mainColor; ctx.fillRect(-8, -54, 16, 18);
+      ctx.fillStyle = cInfo.headband; ctx.fillRect(-8, -50, 16, 4);
+      ctx.fillStyle = p.block ? '#33ff66' : '#ffffff'; ctx.fillRect(2, -47, 4, 2);
+      ctx.fillStyle = mainColor; ctx.fillRect(6, -30, 6, 12);
 
     } else {
       let hitLean = p.hitTimer > 0 ? -8 : 0;
 
       ctx.fillStyle = '#111118';
       if (p.state === 'attack' && p.attackType === 'kick') {
-        ctx.fillRect(-8, 20, 6, 26);
+        ctx.fillRect(-8, -28, 6, 28);
         ctx.fillStyle = '#1e293b';
-        ctx.fillRect(2, 6 + breath, 24, 7);
+        ctx.fillRect(2, -42 + breath, 24, 7);
         ctx.fillStyle = '#111118';
-        ctx.fillRect(22, 4 + breath, 8, 10);
+        ctx.fillRect(22, -44 + breath, 8, 10);
       } else {
-        ctx.fillRect(-8 + walk, 20, 6, 26);
-        ctx.fillRect(2 - walk, 20, 6, 26);
+        ctx.fillRect(-8 + walk, -28, 6, 28);
+        ctx.fillRect(2 - walk, -28, 6, 28);
       }
 
       ctx.fillStyle = mainColor;
       let lean = (p.state === 'attack' && p.attackType === 'kick') ? -4 : hitLean;
-      ctx.fillRect(-10 + lean, -10 + breath, 20, 32);
+      ctx.fillRect(-10 + lean, -58 + breath, 20, 32);
 
       ctx.fillStyle = cInfo.headband;
-      ctx.fillRect(-10 + lean, 8 + breath, 20, 4);
+      ctx.fillRect(-10 + lean, -40 + breath, 20, 4);
 
       ctx.fillStyle = mainColor;
-      ctx.fillRect(-8 + lean, -28 + breath, 16, 18);
+      ctx.fillRect(-8 + lean, -76 + breath, 16, 18);
 
       ctx.fillStyle = cInfo.headband;
-      ctx.fillRect(-8 + lean, -24 + breath, 16, 4);
+      ctx.fillRect(-8 + lean, -72 + breath, 16, 4);
 
       ctx.fillStyle = p.block ? '#33ff66' : '#ffffff';
-      ctx.fillRect(2 + lean, -21 + breath, 4, 2);
+      ctx.fillRect(2 + lean, -69 + breath, 4, 2);
 
       ctx.fillStyle = mainColor;
       if (p.state === 'attack') {
         if (p.attackType === 'kick') {
-          ctx.fillRect(-14, -2 + breath, 6, 16);
-          ctx.fillRect(6, 0 + breath, 6, 14);
+          ctx.fillRect(-14, -50 + breath, 6, 16);
+          ctx.fillRect(6, -48 + breath, 6, 14);
         } else {
-          ctx.fillRect(6 + lean, -8 + breath, 18, 6);
+          ctx.fillRect(6 + lean, -56 + breath, 18, 6);
           ctx.fillStyle = '#f8fafc';
-          ctx.fillRect(22 + lean, -12 + breath, 24, 4);
+          ctx.fillRect(22 + lean, -60 + breath, 24, 4);
           ctx.strokeStyle = 'rgba(255,255,255,0.7)';
           ctx.lineWidth = 3;
           ctx.beginPath();
-          ctx.arc(10, -8, 28, -0.5, 0.8);
+          ctx.arc(10, -56, 28, -0.5, 0.8);
           ctx.stroke();
         }
       } else if (p.state === 'special') {
-        ctx.fillRect(6 + lean, -12 + breath, 18, 6);
+        ctx.fillRect(6 + lean, -60 + breath, 18, 6);
       } else if (p.block) {
-        ctx.fillRect(-2 + lean, -18 + breath, 6, 18);
-        ctx.fillRect(2 + lean, -18 + breath, 6, 18);
+        ctx.fillRect(-2 + lean, -66 + breath, 6, 18);
+        ctx.fillRect(2 + lean, -66 + breath, 6, 18);
       } else {
-        ctx.fillRect(-11 + lean, -3 + breath, 5, 16);
+        ctx.fillRect(-11 + lean, -51 + breath, 5, 16);
         ctx.fillStyle = '#cccccc';
-        ctx.fillRect(-12 + lean, -22 + breath, 3, 22);
+        ctx.fillRect(-12 + lean, -70 + breath, 3, 22);
       }
     }
     ctx.restore();
   }
 
+  // VYKRESLENÍ ÚVODNÍHO OBRÁZKU
   let coverFrame = 0;
   function animateCoverArt() {
     const ccvs = document.getElementById('cover-art');
     if(!ccvs || document.getElementById('cover-screen').style.display === 'none') return;
     const cctx = ccvs.getContext('2d');
     coverFrame++;
-    cctx.fillStyle = '#0f172a'; cctx.fillRect(0,0,320,130);
 
-    let p1X = 100 + Math.sin(coverFrame * 0.02) * 12;
-    let p2X = 220 - Math.sin(coverFrame * 0.02) * 12;
-    let isAttacking = (coverFrame % 120 < 40);
+    if (coverImage && coverImage.complete && coverImage.naturalWidth !== 0) {
+      cctx.drawImage(coverImage, 0, 0, 320, 130);
+    } else {
+      cctx.fillStyle = '#0f172a'; cctx.fillRect(0,0,320,130);
+      let p1X = 100 + Math.sin(coverFrame * 0.02) * 12;
+      let p2X = 220 - Math.sin(coverFrame * 0.02) * 12;
+      let isAttacking = (coverFrame % 120 < 40);
 
-    cctx.save(); cctx.translate(p1X, 65);
-    drawNinjaSprite(cctx, { ...p1, facing: 1, state: isAttacking ? 'attack' : 'idle' }, CHARACTERS[0], coverFrame);
-    cctx.restore();
+      cctx.save(); cctx.translate(p1X, 110);
+      drawNinjaSprite(cctx, { ...p1, facing: 1, state: isAttacking ? 'attack' : 'idle' }, CHARACTERS[0], coverFrame);
+      cctx.restore();
 
-    cctx.save(); cctx.translate(p2X, 65);
-    drawNinjaSprite(cctx, { ...p2, facing: -1, block: isAttacking }, CHARACTERS[1], coverFrame);
-    cctx.restore();
+      cctx.save(); cctx.translate(p2X, 110);
+      drawNinjaSprite(cctx, { ...p2, facing: -1, block: isAttacking }, CHARACTERS[1], coverFrame);
+      cctx.restore();
+    }
 
     requestAnimationFrame(animateCoverArt);
   }
@@ -381,7 +392,7 @@
       const card = document.createElement('div'); card.className = 'hero-card';
       const cvs = document.createElement('canvas'); cvs.width = 45; cvs.height = 55;
       const cctx = cvs.getContext('2d');
-      cctx.translate(22, 25);
+      cctx.translate(22, 48);
       drawNinjaSprite(cctx, { ...p1, facing: 1, state: 'idle' }, c, 0);
       card.appendChild(cvs);
       const lbl = document.createElement('div'); lbl.className = 'h-name'; lbl.innerText = c.name;
@@ -402,7 +413,7 @@
       };
       const cvs = document.createElement('canvas'); cvs.width = 50; cvs.height = 60;
       const cctx = cvs.getContext('2d');
-      cctx.translate(25, 28);
+      cctx.translate(25, 52);
       drawNinjaSprite(cctx, { ...p1, facing: 1, state: 'idle' }, c, 0);
       card.appendChild(cvs);
       const nameDiv = document.createElement('div'); nameDiv.className = 'name'; nameDiv.innerText = c.name;
@@ -633,7 +644,7 @@
         defender.hp -= damage;
         defender.hitTimer = 10;
         defender.vx = attacker.facing * (type === 'kick' ? 3.5 : 2.2);
-        spawnHitSpark(defender.x, defender.y - 10);
+        spawnHitSpark(defender.x, defender.y - 30);
         playHitSfx();
       } else {
         defender.hp -= 2;
@@ -644,7 +655,7 @@
   function handleSpecial(attacker, defender) {
     if(attacker.state === 'special' || attacker.isKnockedDown || isRoundPaused) return;
     attacker.state = 'special';
-    attacker.proj = { x: attacker.x + attacker.facing * 20, y: attacker.y - 10, vx: attacker.facing * 3.8, rot: 0 };
+    attacker.proj = { x: attacker.x + attacker.facing * 20, y: attacker.y - 35, vx: attacker.facing * 3.8, rot: 0 };
     registerComboKey(attacker, defender, 'spec');
     setTimeout(() => attacker.state = 'idle', 500);
   }
@@ -660,7 +671,7 @@
         defender.hp -= 12;
         defender.hitTimer = 12;
         defender.vx = p.facing * 2.5;
-        spawnHitSpark(defender.x, defender.y + 15);
+        spawnHitSpark(defender.x, defender.y - 10);
         playHitSfx();
       }
     }, 40);
@@ -669,8 +680,8 @@
   }
 
   function resetRound() {
-    p1.x = 150; p1.y = 220; p1.hp = 100; p1.vx = 0; p1.vy = 0; p1.proj = null; p1.isKnockedDown = false; p1.comboBuffer = [];
-    p2.x = 450; p2.y = 220; p2.hp = 100; p2.vx = 0; p2.vy = 0; p2.proj = null; p2.isKnockedDown = false; p2.comboBuffer = [];
+    p1.x = 150; p1.y = GROUND_Y; p1.hp = 100; p1.vx = 0; p1.vy = 0; p1.proj = null; p1.isKnockedDown = false; p1.comboBuffer = [];
+    p2.x = 450; p2.y = GROUND_Y; p2.hp = 100; p2.vx = 0; p2.vy = 0; p2.proj = null; p2.isKnockedDown = false; p2.comboBuffer = [];
   }
 
   function triggerRoundPause(winnerName) {
@@ -696,22 +707,16 @@
     document.getElementById('ko-screen').style.display = 'flex';
   }
 
-  // 🖼️ VYKRESLOVÁNÍ NAKRESLENÉHO / OBRÁZKOVÉHO POZADÍ
+  // VYKRESLENÍ GRAFICKÉHO POZADÍ ARÉNY
   function drawBackground() {
     let currentMapImg = mapImages[selectedMap];
-    if (currentMapImg && currentMapImg.complete) {
-      // Vykreslení obrázkového pozadí přes celý Canvas
+    if (currentMapImg && currentMapImg.complete && currentMapImg.naturalWidth !== 0) {
       ctx.drawImage(currentMapImg, 0, 0, 640, 360);
     } else {
-      // Záložní barva při načítání
       ctx.fillStyle = '#1e293b'; ctx.fillRect(0, 0, 640, 360);
+      ctx.fillStyle = '#334155'; ctx.fillRect(0, GROUND_Y, 640, 360 - GROUND_Y);
     }
 
-    // Podlaha arény
-    ctx.fillStyle = 'rgba(0,0,0,0.3)';
-    ctx.fillRect(0, 265, 640, 95);
-
-    // Animované padající lístky sakury pro atmosféru
     if (selectedMap === 0) {
       ctx.fillStyle = '#f472b6';
       sakuraPetals.forEach(p => {
@@ -815,7 +820,7 @@
     [p1, p2].forEach((p, idx) => {
       if(p.hitTimer > 0) p.hitTimer--;
       p.x += p.vx; p.y += p.vy; p.vy += 0.22;
-      if(p.y >= 220) { p.y = 220; p.vy = 0; p.isGrounded = true; }
+      if(p.y >= GROUND_Y) { p.y = GROUND_Y; p.vy = 0; p.isGrounded = true; }
       p.x = Math.max(30, Math.min(610, p.x));
 
       if(p.hp <= 0) {
@@ -845,7 +850,7 @@
       ctx.moveTo(lightningEffect.x + (Math.random()*20-10), 0);
       ctx.lineTo(lightningEffect.x + (Math.random()*30-15), 100);
       ctx.lineTo(lightningEffect.x + (Math.random()*20-10), 180);
-      ctx.lineTo(lightningEffect.x, 260);
+      ctx.lineTo(lightningEffect.x, GROUND_Y);
       ctx.stroke();
       ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 5; ctx.stroke();
       lightningEffect.timer--;
@@ -864,7 +869,7 @@
         if(Math.abs(p.proj.x - other.x) < hitHeight && !other.isKnockedDown) {
           other.hp -= other.block ? 4 : 18;
           other.hitTimer = 10;
-          spawnHitSpark(other.x, other.y - 10);
+          spawnHitSpark(other.x, other.y - 30);
           playHitSfx();
           p.proj = null;
         } else if(p.proj.x < 0 || p.proj.x > 640) p.proj = null;
