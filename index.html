@@ -191,7 +191,6 @@
   let roundNumber = 1;
   let currentRoomCode = "";
 
-  // DEFINICE POSTAV S ODKAZI NA PROFILOVÉ OBRÁZKY I SPRITE SHEETU
   const CHARACTERS = [
     { name: 'DAVID', title: 'Stínový Blade', speed: 1.6, img: 'images/david.png', sprites: 'images/david_sprites.png', color: '#1a1a2e' },
     { name: 'MATĚJ', title: 'Bleskový Kunoichi', speed: 1.55, img: 'images/matej.png', sprites: 'images/matej_sprites.png', color: '#104e8b' },
@@ -199,7 +198,6 @@
     { name: 'MATY', title: 'Ohňový Shinobi', speed: 1.4, img: 'images/maty.png', sprites: 'images/maty_sprites.png', color: '#800c0c' }
   ];
 
-  // Přednačtení obrázků (menu portréty i bojové sprite sheety)
   CHARACTERS.forEach(c => {
     c.imageObj = new Image();
     c.imageObj.src = c.img;
@@ -251,7 +249,7 @@
     }, 150);
   }
 
-// VYKRESLENÍ POSTAVY POMOCÍ SPRITE SHEETU
+  // VYKRESLENÍ POSTAVY POMOCÍ SPRITE SHEETU (Zmenšeno a zarovnáno na podlahu)
   function drawNinjaSprite(ctx, p, cInfo, animFrame) {
     ctx.save();
     if(p.facing === -1) {
@@ -302,7 +300,6 @@
         col = Math.floor(animFrame / 15) % 4;
       }
 
-      // Zmenšeno na 68x68 px a posunuto výše (-72 px), aby se postava vešla akorát na podlahu
       ctx.drawImage(
         img,
         col * fWidth, row * fHeight, fWidth, fHeight,
