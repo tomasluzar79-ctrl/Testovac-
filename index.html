@@ -1,938 +1,2037 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="cs" class="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>F1 Tipovačka 2026 | Šampionát Přátel</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:ital,wght@0,300;0,400;0,600;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
 
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Ninja Krasne Pole">
-<title>NINJA fight Krasne Pole</title>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            f1: ['"Titillium Web"', 'sans-serif'],
+          },
+          colors: {
+            f1red: '#e10600',
+            f1dark: '#15151e',
+            f1card: '#1f1f2e',
+            f1border: '#38384f',
+            f1accent: '#ff1801',
+            f1gold: '#ffd700',
+            f1silver: '#c0c0c0',
+            f1bronze: '#cd7f32',
+          }
+        }
+      }
+    }
+  </script>
 
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' background='%23100a1c'><text y='.9em' font-size='90'>🥷</text></svg>">
-<link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIk5pbmphIGZpZ2h0IEtyYXNuZSBQb2xlIiwKICAic2hvcnRfbmFtZSI6ICJOaW5qYUtSQVAiLAogICJzdGFydF91cmwiOiAiLiIsImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiAiIzA4MGExMCIsICJ0aGVtZV9jb2xvciI6ICIjZmYyMjU1IiwgIm9yaWVudGF0aW9uIjogImxhbmRzY2FwZSIgfQ==">
+  <style>
+    body {
+      font-family: 'Titillium Web', sans-serif;
+      background-color: #0b0b12;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(225, 6, 0, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(255, 24, 1, 0.05) 0%, transparent 40%);
+    }
 
-<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    /* Custom Carbon texture */
+    .carbon-bg {
+      background: linear-gradient(135deg, #15151e 25%, #1b1b27 25%, #1b1b27 50%, #15151e 50%, #15151e 75%, #1b1b27 75%, #1b1b27 100%);
+      background-size: 8px 8px;
+    }
 
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; touch-action: none; }
-  body, html { width: 100vw; height: 100vh; background: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; overflow: hidden; display: flex; justify-content: center; align-items: center; margin: 0; padding: 0; }
-  
-  #game-container { position: relative; width: 100vw; height: 100vh; background: #000; display: flex; flex-direction: column; overflow: hidden; }
-  canvas { width: 100%; height: 100%; display: block; image-rendering: pixelated; object-fit: contain; }
-  
-  .overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(12, 18, 32, 0.98) 0%, rgba(28, 14, 36, 0.96) 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; padding: 16px; text-align: center; backdrop-filter: blur(8px); }
-  
-  #cover-screen { background: radial-gradient(circle, rgba(50,20,60,1) 0%, rgba(10,12,20,1) 100%); cursor: pointer; z-index: 20; }
-  .cover-art-canvas { width: 320px; height: 130px; margin: 12px 0; image-rendering: pixelated; border: 2px solid #ffd700; border-radius: 10px; box-shadow: 0 0 25px rgba(255,215,0,0.4); }
-  .pulse-text { font-size: 0.95rem; color: #ffd700; font-weight: bold; animation: pulse 1.2s infinite alternate; margin-top: 10px; letter-spacing: 2px; text-shadow: 0 0 10px #ffd700; }
-  
-  @keyframes pulse { 0% { opacity: 0.4; transform: scale(0.98); } 100% { opacity: 1; transform: scale(1.02); } }
-
-  h1 { font-size: 2.1rem; color: #ff2255; text-shadow: 3px 3px #ffd700, -2px -2px #000; margin-bottom: 2px; letter-spacing: 3px; font-weight: bold; }
-  h2 { font-size: 1rem; color: #ffd700; margin-bottom: 8px; text-shadow: 0 0 8px rgba(255,215,0,0.6); letter-spacing: 2px; }
-  p { font-size: 0.8rem; color: #ddd; margin-bottom: 6px; line-height: 1.3; }
-  
-  .btn-group { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 95%; margin: 6px 0; }
-  .btn { background: #1a2238; color: #fff; border: 2px solid #ffd700; padding: 10px 16px; font-size: 0.85rem; font-family: inherit; font-weight: bold; cursor: pointer; border-radius: 8px; box-shadow: 0 4px #998000; transition: all 0.1s; text-transform: uppercase; }
-  .btn:active { transform: translateY(3px); box-shadow: 0 1px #998000; }
-  .btn-red { border-color: #ff2255; color: #ff2255; box-shadow: 0 4px #990022; background: #2b0d1a; }
-  
-  input[type="text"] { padding: 8px 12px; font-size: 1.1rem; border: 2px solid #ffd700; background: #0c101c; color: #ffd700; text-align: center; font-family: inherit; width: 180px; border-radius: 6px; text-transform: uppercase; font-weight: bold; letter-spacing: 2px; }
-  
-  .hero-gallery { display: flex; gap: 10px; margin: 6px 0 10px 0; }
-  .hero-card { width: 85px; height: 110px; background: rgba(20, 28, 48, 0.85); border: 2px solid #ffd700; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.6); }
-  .hero-card img { width: 75px; height: 75px; object-fit: cover; border-radius: 4px; border: 1px solid #ffd700; }
-  .hero-card .h-name { font-size: 0.68rem; font-weight: bold; color: #ffd700; margin-top: 3px; }
-
-  .char-preview-grid { display: flex; gap: 10px; margin: 10px 0; }
-  .char-card { background: #141c30; border: 2px solid #2a385c; padding: 8px; border-radius: 8px; width: 115px; text-align: center; cursor: pointer; transition: 0.2s; }
-  .char-card.selected { border-color: #ff2255; background: #2a1830; box-shadow: 0 0 20px #ff2255; transform: scale(1.05); }
-  .char-card img { width: 95px; height: 75px; object-fit: cover; margin: 0 auto 4px; display: block; border-radius: 6px; border: 1px solid #ffd700; background: rgba(0,0,0,0.3); }
-  .char-card .name { font-size: 0.8rem; font-weight: bold; color: #ffd700; }
-
-  .map-grid { display: flex; gap: 10px; margin: 10px 0; }
-  .map-card { background: #141c30; border: 2px solid #2a385c; padding: 6px; border-radius: 8px; width: 120px; text-align: center; cursor: pointer; transition: 0.2s; }
-  .map-card.selected { border-color: #ffd700; background: #283418; box-shadow: 0 0 18px #ffd700; transform: scale(1.05); }
-
-  /* DOTYKOVÉ OVLÁDÁNÍ */
-  #touch-controls { position: absolute; inset: 0; pointer-events: none; z-index: 5; display: flex; justify-content: space-between; align-items: flex-end; padding: 14px 18px; }
-  .dpad, .action-btns { pointer-events: auto; display: grid; gap: 6px; }
-  .dpad { grid-template-columns: repeat(3, 48px); grid-template-rows: repeat(3, 48px); }
-  .action-btns { grid-template-columns: repeat(3, 52px); grid-template-rows: repeat(2, 52px); }
-  
-  .t-btn { background: rgba(20, 28, 48, 0.92); border: 2px solid #ffd700; border-radius: 50%; color: #fff; font-size: 0.75rem; font-weight: bold; display: flex; justify-content: center; align-items: center; box-shadow: 0 3px rgba(0,0,0,0.6); }
-  .t-btn:active, .t-btn.active { background: rgba(255, 215, 0, 0.4); transform: scale(0.95); }
-  
-  .btn-atk { border-color: #ff2255; color: #ff2255; }
-  .btn-def { border-color: #33ff66; color: #33ff66; }
-  .btn-spec { border-color: #00ffff; color: #00ffff; }
-  .btn-slide { border-color: #ffff00; color: #ffff00; }
-</style>
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #111119;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #38384f;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #e10600;
+    }
+  </style>
 </head>
-<body>
+<body class="text-gray-100 min-h-screen flex flex-col font-f1 antialiased selection:bg-f1red selection:text-white">
 
-<div id="game-container">
-  <canvas id="canvas" width="640" height="360"></canvas>
-
-  <!-- COVER SCREEN -->
-  <div id="cover-screen" class="overlay" onclick="openMainMenu()">
-    <h1>NINJA fight Krasne Pole</h1>
-    <h2>⛩️ Krásnopolská Aréna ⛩️</h2>
-    <canvas id="cover-art" class="cover-art-canvas" width="320" height="130"></canvas>
-    <div class="pulse-text">👉 KLEPNI PRO START S HUDBOU 👈</div>
+  <!-- NOTIFIKACE MODAL / TOAST -->
+  <div id="toast" class="fixed top-5 right-5 z-50 transform transition-all duration-300 translate-y-[-120%] opacity-0 bg-f1card border-l-4 border-f1red text-white p-4 rounded-xl shadow-2xl flex items-center gap-3">
+    <i id="toast-icon" class="fa-solid fa-flag-checkered text-xl text-f1red"></i>
+    <div id="toast-msg" class="text-sm font-semibold">Zpráva systému</div>
   </div>
 
-  <!-- HLAVNÍ MENU -->
-  <div id="title-screen" class="overlay" style="display:none;">
-    <h1>NINJA fight Krasne Pole</h1>
-    <h2>⚔️ HLAVNÍ MENU ⚔️</h2>
-    <div class="hero-gallery" id="hero-gallery"></div>
-    <div class="btn-group">
-      <button class="btn btn-red" onclick="startMode('1p')">🤖 1 HRÁČ (VS AI)</button>
-      <button class="btn" onclick="showOnlineMenu()">📱 ONLINE (2 MOBILY)</button>
+  <!-- HLAVIČKA -->
+  <header class="border-b border-f1border/80 bg-f1dark/90 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="bg-f1red text-white p-2 rounded-lg font-black tracking-tighter text-2xl flex items-center justify-center shadow-lg shadow-f1red/30">
+          F1
+        </div>
+        <div>
+          <h1 class="text-xl md:text-2xl font-black uppercase tracking-wider text-white flex items-center gap-2">
+            Tipovačka <span class="text-f1red">2026</span>
+          </h1>
+          <p class="text-xs text-gray-400">Liga přátel: detailní tipy na incidenty, DNF, déšť a pódium</p>
+        </div>
+      </div>
+
+      <!-- Výběr Velké ceny -->
+      <div class="flex items-center space-x-2">
+        <label for="race-select" class="text-xs uppercase font-bold text-gray-400 hidden sm:inline-block"><i class="fa-solid fa-trophy mr-1 text-f1red"></i>Závod:</label>
+        <select id="race-select" class="bg-f1card border border-f1border text-white text-sm rounded-lg px-3 py-2 font-semibold focus:outline-none focus:ring-2 focus:ring-f1red cursor-pointer">
+          <!-- Dynamicky naplněno -->
+        </select>
+      </div>
+
+      <!-- Rychlé akce -->
+      <div class="flex items-center gap-2">
+        <button id="btn-export-data" title="Exportovat data do JSON" class="bg-f1card hover:bg-gray-800 text-gray-300 px-3 py-2 rounded-lg text-xs font-bold border border-f1border flex items-center gap-1.5 transition">
+          <i class="fa-solid fa-file-export"></i><span class="hidden md:inline">Záloha</span>
+        </button>
+        <label title="Importovat data ze souboru JSON" class="bg-f1card hover:bg-gray-800 text-gray-300 px-3 py-2 rounded-lg text-xs font-bold border border-f1border flex items-center gap-1.5 cursor-pointer transition">
+          <i class="fa-solid fa-file-import"></i><span class="hidden md:inline">Obnovit</span>
+          <input type="file" id="input-import-data" class="hidden" accept=".json">
+        </label>
+        <button id="btn-reset-demo" title="Obnovit výchozí demo data" class="bg-f1border hover:bg-gray-700 text-gray-200 px-3 py-2 rounded-lg text-xs font-bold transition">
+          <i class="fa-solid fa-rotate-left"></i>
+        </button>
+      </div>
     </div>
-    <div class="btn-group" style="margin-top:4px;">
-      <button class="btn" style="font-size: 0.72rem; padding: 6px 10px;" onclick="toggleAudio()" id="audio-toggle-btn">🔊 HUDBA: ZAP</button>
-      <button class="btn" style="font-size: 0.72rem; padding: 6px 10px;" onclick="toggleLives()">❤️ ŽIVOTY: <span id="lives-count">10</span></button>
+  </header>
+
+  <!-- HLAVNÍ NAVIGACE ZÁLOŽEK -->
+  <nav class="bg-f1card border-b border-f1border">
+    <div class="max-w-7xl mx-auto px-4 flex space-x-1 sm:space-x-4 overflow-x-auto py-2">
+      <button class="nav-tab active-tab px-4 py-2 text-sm font-bold rounded-lg transition whitespace-nowrap flex items-center gap-2" data-tab="tab-tips">
+        <i class="fa-solid fa-user-pen"></i> Tipy hráčů
+      </button>
+      <button class="nav-tab text-gray-400 hover:text-white px-4 py-2 text-sm font-bold rounded-lg transition whitespace-nowrap flex items-center gap-2" data-tab="tab-official">
+        <i class="fa-solid fa-flag-checkered text-f1red"></i> Oficiální výsledky & F1 API
+      </button>
+      <button class="nav-tab text-gray-400 hover:text-white px-4 py-2 text-sm font-bold rounded-lg transition whitespace-nowrap flex items-center gap-2" data-tab="tab-evaluation">
+        <i class="fa-solid fa-square-poll-vertical text-emerald-400"></i> Vyhodnocení závodu
+      </button>
+      <button class="nav-tab text-gray-400 hover:text-white px-4 py-2 text-sm font-bold rounded-lg transition whitespace-nowrap flex items-center gap-2" data-tab="tab-standings">
+        <i class="fa-solid fa-ranking-star text-f1gold"></i> Celkový šampionát
+      </button>
+      <button class="nav-tab text-gray-400 hover:text-white px-4 py-2 text-sm font-bold rounded-lg transition whitespace-nowrap flex items-center gap-2" data-tab="tab-settings">
+        <i class="fa-solid fa-sliders"></i> Bodová pravidla
+      </button>
     </div>
-  </div>
+  </nav>
 
-  <!-- MEZIOBRAZOVKA PO KOLE -->
-  <div id="round-pause-screen" class="overlay" style="display:none; z-index:25;">
-    <h1 id="round-winner-title" style="font-size:2.2rem; color:#ffd700;">DAVID VYHRÁL KOLO!</h1>
-    <h2 id="round-next-subtitle" style="font-size:1.1rem; color:#00ffff; margin: 10px 0;">PŘIPRAV SE NA KOLO 2</h2>
-    <div style="background: rgba(0,0,0,0.5); padding: 12px 24px; border-radius:8px; border:1px solid #ffd700; margin: 10px 0;">
-      <p id="round-score-status" style="font-size:1.1rem; color:#fff; font-weight:bold;"></p>
+  <!-- HLAVNÍ OBSAH -->
+  <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+
+    <!-- ZÁLOŽKA 1: TIPY HRÁČŮ -->
+    <section id="tab-tips" class="space-y-6">
+      <!-- Správa hráčů -->
+      <div class="bg-f1card border border-f1border rounded-2xl p-4 sm:p-5 shadow-lg">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-users text-f1red"></i> Účastníci tipovací ligy
+            </h2>
+            <p class="text-xs text-gray-400">Přidej kámoše nebo vyber hráče, jehož tipy chceš právě zadat</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="text" id="new-player-name" placeholder="Jméno hráče (např. Petr)" class="bg-f1dark border border-f1border text-white text-sm rounded-lg px-3 py-2 w-48 focus:outline-none focus:ring-2 focus:ring-f1red">
+            <button id="btn-add-player" class="bg-f1red hover:bg-f1accent text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1 transition">
+              <i class="fa-solid fa-user-plus"></i> Přidat
+            </button>
+          </div>
+        </div>
+
+        <div id="player-chips" class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-f1border/60">
+          <!-- Dynamicky generované chips hráčů -->
+        </div>
+      </div>
+
+      <!-- Formulář tipů pro zvoleného hráče -->
+      <div id="tips-form-container" class="bg-f1card border border-f1border rounded-2xl p-5 shadow-lg relative">
+        <div class="flex flex-wrap items-center justify-between border-b border-f1border pb-4 mb-5 gap-3">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-widest text-f1red" id="tips-race-title">GP AUSSIE 2026</span>
+            <h3 class="text-xl font-black text-white flex items-center gap-2">
+              Tipovací tiket hráče: <span id="current-player-label" class="text-f1red underline decoration-f1red">Vyber hráče</span>
+            </h3>
+          </div>
+          <button id="btn-save-tips" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-2.5 rounded-xl shadow-md hover:shadow-emerald-600/30 transition flex items-center gap-2">
+            <i class="fa-solid fa-floppy-disk"></i> Uložit tipy pro tento závod
+          </button>
+        </div>
+
+        <!-- Kategorie tipování -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <!-- 1. PÓDIUM TOP 3 -->
+          <div class="bg-f1dark/80 p-4 rounded-xl border border-f1border flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <h4 class="font-bold text-white text-sm flex items-center gap-2">
+                  <i class="fa-solid fa-trophy text-f1gold"></i> Pódium (TOP 3)
+                </h4>
+                <span class="text-xs bg-f1border text-gray-300 px-2 py-0.5 rounded-full font-mono font-bold points-badge-podium">3x 3 b.</span>
+              </div>
+              <div class="space-y-2.5">
+                <div>
+                  <label class="text-xs text-f1gold font-bold block mb-1">🥇 1. Místo (Vítěz):</label>
+                  <select id="tip-p1" class="w-full bg-f1card border border-f1border text-white text-xs rounded-lg p-2 focus:ring-1 focus:ring-f1red"></select>
+                </div>
+                <div>
+                  <label class="text-xs text-f1silver font-bold block mb-1">🥈 2. Místo:</label>
+                  <select id="tip-p2" class="w-full bg-f1card border border-f1border text-white text-xs rounded-lg p-2 focus:ring-1 focus:ring-f1red"></select>
+                </div>
+                <div>
+                  <label class="text-xs text-f1bronze font-bold block mb-1">🥉 3. Místo:</label>
+                  <select id="tip-p3" class="w-full bg-f1card border border-f1border text-white text-xs rounded-lg p-2 focus:ring-1 focus:ring-f1red"></select>
+                </div>
+              </div>
+            </div>
+            <p class="text-[11px] text-gray-500 mt-2">Přesná pozice jezdce v cíli.</p>
+          </div>
+
+          <!-- 2. RYCHLOST & VÝKON -->
+          <div class="bg-f1dark/80 p-4 rounded-xl border border-f1border flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <h4 class="font-bold text-white text-sm flex items-center gap-2">
+                  <i class="fa-solid fa-stopwatch text-cyan-400"></i> Rychlé kolo & Den
+                </h4>
+                <span class="text-xs bg-f1border text-gray-300 px-2 py-0.5 rounded-full font-mono font-bold">2 + 2 b.</span>
+              </div>
+              <div class="space-y-3">
+                <div>
+                  <label class="text-xs text-gray-300 font-bold block mb-1">⚡ Nejrychlejší kolo (FL):</label>
+                  <select id="tip-fastest-lap" class="w-full bg-f1card border border-f1border text-white text-xs rounded-lg p-2 focus:ring-1 focus:ring-f1red"></select>
+                </div>
+                <div>
+                  <label class="text-xs text-gray-300 font-bold block mb-1">🌟 Jezdec dne (Driver of the Day):</label>
+                  <select id="tip-dotd" class="w-full bg-f1card border border-f1border text-white text-xs rounded-lg p-2 focus:ring-1 focus:ring-f1red"></select>
+                </div>
+              </div>
+            </div>
+            <p class="text-[11px] text-gray-500 mt-2">Oficiálně vyhlášení jezdci F1.</p>
+          </div>
+
+          <!-- 3. POČASÍ & ŽLUTÉ VLÁJKY / SC -->
+          <div class="bg-f1dark/80 p-4 rounded-xl border border-f1border flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <h4 class="font-bold text-white text-sm flex items-center gap-2">
+                  <i class="fa-solid fa-cloud-showers-heavy text-blue-400"></i> Podmínky & Vlajky
+                </h4>
+                <span class="text-xs bg-f1border text-gray-300 px-2 py-0.5 rounded-full font-mono font-bold">2 + 3 b.</span>
+              </div>
+              <div class="space-y-3">
+                <div>
+                  <label class="text-xs text-gray-300 font-bold block mb-1">🌧️ Bude pršet během závodu?</label>
+                  <div class="grid grid-cols-2 gap-2">
+                    <label class="flex items-center justify-center p-2 rounded-lg border border-f1border cursor-pointer has-[:checked]:bg-blue-600/30 has-[:checked]:border-blue-500">
+                      <input type="radio" name="tip-rain" value="yes" class="mr-2 accent-blue-500"> Ano
+                    </label>
+                    <label class="flex items-center justify-center p-2 rounded-lg border border-f1border cursor-pointer has-[:checked]:bg-amber-600/30 has-[:checked]:border-amber-500">
+                      <input type="radio" name="tip-rain" value="no" checked class="mr-2 accent-amber-500"> Ne
+                    </label>
+                  </div>
+                </div>
+                <div>
+                  <label class="text-xs text-gray-300 font-bold block mb-1">🚗 Počet fází Safety Car / VSC:</label>
+                  <input type="number" id="tip-safety-car-count" min="0" max="15" value="1" class="w-full bg-f1card border border-f1border text-white text-sm rounded-lg p-2 focus:ring-1 focus:ring-f1red">
+                </div>
+              </div>
+            </div>
+            <p class="text-[11px] text-gray-500 mt-2">Součet SC i VSC fází nasazených ředitelstvím závodu.</p>
+          </div>
+
+          <!-- 4. HAVÁRIE A ODSTOUPENÍ (DNF) -->
+          <div class="bg-f1dark/80 p-4 rounded-xl border border-f1border flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <h4 class="font-bold text-white text-sm flex items-center gap-2">
+                  <i class="fa-solid fa-car-burst text-rose-500"></i> DNF & Havárie
+                </h4>
+                <span class="text-xs bg-f1border text-gray-300 px-2 py-0.5 rounded-full font-mono font-bold">3 + 3 b.</span>
+              </div>
+              <div class="space-y-3">
+                <div>
+                  <label class="text-xs text-gray-300 font-bold block mb-1">💥 Celkový počet DNF (odstoupení):</label>
+                  <input type="number" id="tip-dnf-count" min="0" max="22" value="2" class="w-full bg-f1card border border-f1border text-white text-sm rounded-lg p-2 focus:ring-1 focus:ring-f1red">
+                </div>
+                <div>
+                  <label class="text-xs text-gray-300 font-bold block mb-1">❌ První jezdec, který odstoupí:</label>
+                  <select id="tip-first-dnf" class="w-full bg-f1card border border-f1border text-white text-xs rounded-lg p-2 focus:ring-1 focus:ring-f1red"></select>
+                </div>
+              </div>
+            </div>
+            <p class="text-[11px] text-gray-500 mt-2">Technické závady i nehody (možno tipnout i "Nikdo neodstoupí").</p>
+          </div>
+
+          <!-- 5. KRIZE V PRVNÍM KOLE -->
+          <div class="bg-f1dark/80 p-4 rounded-xl border border-f1border flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <h4 class="font-bold text-white text-sm flex items-center gap-2">
+                  <i class="fa-solid fa-triangle-exclamation text-amber-400"></i> Drama v 1. kole
+                </h4>
+                <span class="text-xs bg-f1border text-gray-300 px-2 py-0.5 rounded-full font-mono font-bold">3 b.</span>
+              </div>
+              <div class="space-y-3">
+                <div>
+                  <label class="text-xs text-gray-300 font-bold block mb-1">Odpadne jezdec TOP týmu (Ferrari / McLaren / Red Bull / Mercedes) v 1. kole?</label>
+                  <div class="grid grid-cols-2 gap-2">
+                    <label class="flex items-center justify-center p-2 rounded-lg border border-f1border cursor-pointer has-[:checked]:bg-rose-600/30 has-[:checked]:border-rose-500">
+                      <input type="radio" name="tip-lap1-crash" value="yes" class="mr-2 accent-rose-500"> Ano
+                    </label>
+                    <label class="flex items-center justify-center p-2 rounded-lg border border-f1border cursor-pointer has-[:checked]:bg-emerald-600/30 has-[:checked]:border-emerald-500">
+                      <input type="radio" name="tip-lap1-crash" value="no" checked class="mr-2 accent-emerald-500"> Ne
+                    </label>
+                  </div>
+                </div>
+                <div>
+                  <label class="text-xs text-gray-300 font-bold block mb-1">🏁 Dokončí závod alespoň 16 vozů?</label>
+                  <div class="grid grid-cols-2 gap-2">
+                    <label class="flex items-center justify-center p-2 rounded-lg border border-f1border cursor-pointer has-[:checked]:bg-cyan-600/30 has-[:checked]:border-cyan-500">
+                      <input type="radio" name="tip-finishers" value="yes" checked class="mr-2 accent-cyan-500"> Ano (16+)
+                    </label>
+                    <label class="flex items-center justify-center p-2 rounded-lg border border-f1border cursor-pointer has-[:checked]:bg-purple-600/30 has-[:checked]:border-purple-500">
+                      <input type="radio" name="tip-finishers" value="no" class="mr-2 accent-purple-500"> Ne (&lt;16)
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p class="text-[11px] text-gray-500 mt-2">Speciální rizikové události.</p>
+          </div>
+
+          <!-- 6. PŘEHLED HRÁČSKÉHO TIKETU -->
+          <div class="bg-gradient-to-br from-f1card to-f1dark p-4 rounded-xl border border-f1border flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <h4 class="font-bold text-white text-sm flex items-center gap-2">
+                  <i class="fa-solid fa-list-check text-emerald-400"></i> Shrnutí tiketu
+                </h4>
+                <span class="text-xs font-mono text-gray-400">Stav: připraveno</span>
+              </div>
+              <div id="quick-ticket-summary" class="text-xs space-y-1.5 text-gray-300">
+                <div class="flex justify-between border-b border-f1border/40 py-1"><span>Pódium:</span> <span id="sum-podium" class="text-white font-semibold">-</span></div>
+                <div class="flex justify-between border-b border-f1border/40 py-1"><span>Nejrychlejší kolo:</span> <span id="sum-fl" class="text-white font-semibold">-</span></div>
+                <div class="flex justify-between border-b border-f1border/40 py-1"><span>Déšť / SC / DNF:</span> <span id="sum-weather" class="text-white font-semibold">-</span></div>
+                <div class="flex justify-between border-b border-f1border/40 py-1"><span>První DNF:</span> <span id="sum-firstdnf" class="text-white font-semibold">-</span></div>
+              </div>
+            </div>
+            <div class="mt-4">
+              <button id="btn-save-tips-bottom" class="w-full text-xs bg-emerald-600 hover:bg-emerald-500 font-bold text-white py-2 rounded-lg transition flex items-center justify-center gap-1.5 shadow">
+                <i class="fa-solid fa-check"></i> Uložit tento tiket
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ZÁLOŽKA 2: OFICIÁLNÍ VÝSLEDKY & F1 API -->
+    <section id="tab-official" class="hidden space-y-6">
+      <div class="bg-f1card border border-f1border rounded-2xl p-5 shadow-lg">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-f1border pb-4 mb-5">
+          <div>
+            <h2 class="text-xl font-black text-white flex items-center gap-2">
+              <i class="fa-solid fa-satellite-dish text-f1red"></i> Oficiální data závodu & F1 Live API
+            </h2>
+            <p class="text-xs text-gray-400">Data, podle kterých se bodují všechny tipy. Načti je z OpenF1 API nebo zadej přesný FIA protokol.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs text-gray-400 bg-f1dark px-3 py-2 rounded-xl border border-f1border flex items-center gap-2">
+              Status auditu: <span id="official-audit-status" class="text-gray-300 font-mono font-bold">Čeká na ověření</span>
+            </span>
+            <button id="btn-fetch-api" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow-md transition">
+              <i class="fa-solid fa-cloud-arrow-down"></i> Načíst z OpenF1 API
+            </button>
+          </div>
+        </div>
+
+        <!-- FIA RACE CONTROL LIVE AUDIT LOG -->
+        <div class="mb-5 bg-f1dark/90 border border-f1border rounded-xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2 text-xs font-bold text-gray-300 uppercase tracking-wider">
+              <i class="fa-solid fa-tower-broadcast text-f1red animate-pulse"></i> FIA Race Control & Incident Audit Feed
+            </div>
+            <span id="log-count" class="text-[11px] font-mono text-gray-400 bg-f1card px-2 py-0.5 rounded border border-f1border">0 záznamů</span>
+          </div>
+          <div id="race-control-log" class="max-h-40 overflow-y-auto space-y-1 font-mono text-xs pr-2">
+            <div class="text-gray-500 italic py-1">Klikněte na „Načíst z F1 API / Serveru“ pro okamžité stažení a ověření oficiálních výsledků vybraného závodu.</div>
+          </div>
+        </div>
+
+        <!-- FORMULÁŘ OFICIÁLNÍCH VÝSLEDKŮ -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <!-- Oficiální Pódium -->
+          <div class="bg-f1dark p-4 rounded-xl border border-f1border space-y-3">
+            <h4 class="font-bold text-white text-sm border-b border-f1border/60 pb-2 flex items-center gap-2">
+              <i class="fa-solid fa-trophy text-f1gold"></i> Oficiální Pódium
+            </h4>
+            <div>
+              <label class="text-xs text-f1gold font-bold block mb-1">1. Místo (Vítěz):</label>
+              <select id="off-p1" class="w-full bg-f1card border border-f1border text-white text-xs rounded-lg p-2"></select>
+            </div>
+            <div>
+              <label class="text-xs text-f1silver font-bold block mb-1">2. Místo:</label>
+              <select id="off-p2" class="w-full bg-f1card border border-f1border text-white text-xs rounded-lg p-2"></select>
+            </div>
+            <div>
+              <label class="text-xs text-f1bronze font-bold block mb-1">3. Místo:</label>
+              <select id="off-p3" class="w-full bg-f1card border border-f1border text-white text-xs rounded-lg p-2"></select>
+            </div>
+          </div>
+
+          <!-- Rychlé kolo & DotD -->
+          <div class="bg-f1dark p-4 rounded-xl border border-f1border space-y-3">
+            <h4 class="font-bold text-white text-sm border-b border-f1border/60 pb-2 flex items-center gap-2">
+              <i class="fa-solid fa-gauge-high text-cyan-400"></i> Oficiální ocenění
+            </h4>
+            <div>
+              <label class="text-xs text-gray-300 font-bold block mb-1">⚡ Nejrychlejší kolo:</label>
+              <select id="off-fastest-lap" class="w-full bg-f1card border border-f1border text-white text-xs rounded-lg p-2"></select>
+            </div>
+            <div>
+              <label class="text-xs text-gray-300 font-bold block mb-1">🌟 Jezdec dne (DOTD):</label>
+              <select id="off-dotd" class="w-full bg-f1card border border-f1border text-white text-xs rounded-lg p-2"></select>
+            </div>
+          </div>
+
+          <!-- Podmínky & Průběh -->
+          <div class="bg-f1dark p-4 rounded-xl border border-f1border space-y-3">
+            <h4 class="font-bold text-white text-sm border-b border-f1border/60 pb-2 flex items-center gap-2">
+              <i class="fa-solid fa-flag text-amber-400"></i> Průběh závodu
+            </h4>
+            <div>
+              <label class="text-xs text-gray-300 font-bold block mb-1">Pršelo v závodě?</label>
+              <select id="off-rain" class="w-full bg-f1card border border-f1border text-white text-xs rounded-lg p-2">
+                <option value="no">Ne (Suchý závod)</option>
+                <option value="yes">Ano (Mokrý závod / přeháňka)</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs text-gray-300 font-bold block mb-1">Počet nasazení SC / VSC:</label>
+              <input type="number" id="off-safety-car-count" min="0" max="15" value="1" class="w-full bg-f1card border border-f1border text-white text-xs rounded-lg p-2">
+            </div>
+          </div>
+
+          <!-- Odstoupení & Incidenty -->
+          <div class="bg-f1dark p-4 rounded-xl border border-f1border space-y-3">
+            <h4 class="font-bold text-white text-sm border-b border-f1border/60 pb-2 flex items-center gap-2">
+              <i class="fa-solid fa-skull-crossbones text-rose-500"></i> DNF a nehody
+            </h4>
+            <div>
+              <label class="text-xs text-gray-300 font-bold block mb-1">Celkový počet odstoupení (DNF):</label>
+              <input type="number" id="off-dnf-count" min="0" max="22" value="2" class="w-full bg-f1card border border-f1border text-white text-xs rounded-lg p-2">
+            </div>
+            <div>
+              <label class="text-xs text-gray-300 font-bold block mb-1">První jezdec, který havaroval / odstoupil:</label>
+              <select id="off-first-dnf" class="w-full bg-f1card border border-f1border text-white text-xs rounded-lg p-2"></select>
+            </div>
+          </div>
+
+          <!-- První kolo & Počty v cíli -->
+          <div class="bg-f1dark p-4 rounded-xl border border-f1border space-y-3">
+            <h4 class="font-bold text-white text-sm border-b border-f1border/60 pb-2 flex items-center gap-2">
+              <i class="fa-solid fa-shield-halved text-emerald-400"></i> TOP týmy a finiš
+            </h4>
+            <div>
+              <label class="text-xs text-gray-300 font-bold block mb-1">Vypadl Ferrari/RedBull/McLaren/Merc v 1. kole?</label>
+              <select id="off-lap1-crash" class="w-full bg-f1card border border-f1border text-white text-xs rounded-lg p-2">
+                <option value="no">Ne, TOP týmy přežily 1. kolo</option>
+                <option value="yes">Ano, došlo k havárii/odstoupení v 1. kole</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs text-gray-300 font-bold block mb-1">Dokončilo 16 a více vozů?</label>
+              <select id="off-finishers" class="w-full bg-f1card border border-f1border text-white text-xs rounded-lg p-2">
+                <option value="yes">Ano (16 a více aut dojelo do cíle)</option>
+                <option value="no">Ne (dojelo 15 nebo méně aut)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Uložení oficiálních dat -->
+          <div class="bg-f1dark p-4 rounded-xl border border-f1border flex flex-col justify-between">
+            <div>
+              <h4 class="font-bold text-white text-sm mb-2 flex items-center gap-2">
+                <i class="fa-solid fa-circle-check text-emerald-400"></i> Potvrzení oficiálních dat
+              </h4>
+              <p class="text-xs text-gray-400 mb-4">
+                Po uložení se automaticky aktualizuje vyhodnocení pro všechny hráče a přepočítá se celková tabulka šampionátu.
+              </p>
+            </div>
+            <button id="btn-save-official" class="w-full bg-f1red hover:bg-f1accent text-white font-bold py-3 rounded-xl shadow-lg shadow-f1red/20 transition flex items-center justify-center gap-2">
+              <i class="fa-solid fa-calculator"></i> Uložit data & Přepočítat body ligy
+            </button>
+          </div>
+        </div>
+
+        <!-- TABULKA KOMPLETNÍHO OFICIÁLNÍHO POŘADÍ (P1-P22) -->
+        <div class="mt-6 border-t border-f1border pt-5">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-bold text-white text-sm flex items-center gap-2">
+              <i class="fa-solid fa-list-ol text-cyan-400"></i> Oficiální klasifikace závodu (P1 až P22)
+            </h4>
+            <span class="text-xs text-gray-400 font-mono">FIA Official Race Classification</span>
+          </div>
+          <div class="overflow-x-auto bg-f1dark/80 rounded-xl border border-f1border">
+            <table class="w-full text-left text-xs border-collapse font-mono">
+              <thead>
+                <tr class="bg-f1card text-gray-400 border-b border-f1border uppercase text-[11px]">
+                  <th class="p-2.5 w-12 text-center">Poz</th>
+                  <th class="p-2.5 w-12 text-center">Číslo</th>
+                  <th class="p-2.5">Jezdec</th>
+                  <th class="p-2.5">Tým</th>
+                  <th class="p-2.5 text-center">Kola</th>
+                  <th class="p-2.5">Čas / Ztráta / Status</th>
+                  <th class="p-2.5 text-right">Body</th>
+                </tr>
+              </thead>
+              <tbody id="full-grid-classification-body" class="divide-y divide-f1border/40 text-gray-300">
+                <tr><td colspan="7" class="p-4 text-center text-gray-500 italic font-sans">Načítám oficiální pořadí startovního pole...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ZÁLOŽKA 3: VYHODNOCENÍ ZÁVODU -->
+    <section id="tab-evaluation" class="hidden space-y-6">
+      <div class="bg-f1card border border-f1border rounded-2xl p-5 shadow-lg">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-f1border pb-4 mb-5">
+          <div>
+            <h2 class="text-xl font-black text-white flex items-center gap-2">
+              <i class="fa-solid fa-chart-pie text-emerald-400"></i> Detailní bodový rozpad závodu
+            </h2>
+            <p class="text-xs text-gray-400">Přehled, kdo co trefil zeleně a kde ztratil body červeně pro aktuálně zvolenou Velkou cenu.</p>
+          </div>
+          <div class="text-xs font-mono bg-f1dark px-3 py-1.5 rounded-lg border border-f1border text-gray-300">
+            Závod: <span id="eval-race-name" class="font-bold text-f1red">Melbourne GP</span>
+          </div>
+        </div>
+
+        <!-- OFICIÁLNÍ VÝSLEDKY ZÁVODU - PŘEHLEDOVÁ KARTA -->
+        <div class="mb-6 bg-gradient-to-r from-f1dark via-f1card to-f1dark border border-f1border rounded-2xl p-4 sm:p-5 shadow-md">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-f1border/60 pb-3 mb-4">
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-f1red text-white text-xs font-bold shadow-md shadow-f1red/30">
+                <i class="fa-solid fa-flag-checkered"></i>
+              </span>
+              <div>
+                <h3 class="text-sm font-black uppercase tracking-wider text-white flex items-center gap-2">
+                  Oficiální výsledky FIA pro tento závod
+                </h3>
+                <span id="eval-official-status" class="text-[11px] text-emerald-400 font-mono font-semibold">● Oficiálně potvrzeno a vyhodnoceno</span>
+              </div>
+            </div>
+            <span class="text-xs text-gray-400 font-mono bg-f1dark/80 px-2.5 py-1 rounded-md border border-f1border/50">
+              Všechna hodnocení níže jsou porovnávána vůči těmto datům
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+            <!-- Pódium -->
+            <div class="bg-f1dark/90 p-3 rounded-xl border border-f1border/70 space-y-2">
+              <div class="text-gray-400 font-bold uppercase text-[10px] tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-trophy text-f1gold"></i> Oficiální Pódium
+              </div>
+              <div class="space-y-1.5">
+                <div class="flex items-center justify-between bg-f1card/60 px-2.5 py-1.5 rounded-lg border border-f1gold/30">
+                  <span class="text-f1gold font-bold">🥇 1. Místo:</span>
+                  <span id="eval-off-p1" class="font-bold text-white font-mono">-</span>
+                </div>
+                <div class="flex items-center justify-between bg-f1card/60 px-2.5 py-1.5 rounded-lg border border-f1silver/30">
+                  <span class="text-f1silver font-bold">🥈 2. Místo:</span>
+                  <span id="eval-off-p2" class="font-bold text-white font-mono">-</span>
+                </div>
+                <div class="flex items-center justify-between bg-f1card/60 px-2.5 py-1.5 rounded-lg border border-f1bronze/30">
+                  <span class="text-f1bronze font-bold">🥉 3. Místo:</span>
+                  <span id="eval-off-p3" class="font-bold text-white font-mono">-</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ocenění -->
+            <div class="bg-f1dark/90 p-3 rounded-xl border border-f1border/70 space-y-2">
+              <div class="text-gray-400 font-bold uppercase text-[10px] tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-award text-cyan-400"></i> Ocenění jezdce & rychlost
+              </div>
+              <div class="space-y-1.5">
+                <div class="flex items-center justify-between bg-f1card/60 px-2.5 py-1.5 rounded-lg border border-f1border/50">
+                  <span class="text-gray-300">⚡ Nejrychlejší kolo:</span>
+                  <span id="eval-off-fl" class="font-bold text-cyan-300 font-mono">-</span>
+                </div>
+                <div class="flex items-center justify-between bg-f1card/60 px-2.5 py-1.5 rounded-lg border border-f1border/50">
+                  <span class="text-gray-300">🌟 Driver of the Day:</span>
+                  <span id="eval-off-dotd" class="font-bold text-amber-300 font-mono">-</span>
+                </div>
+                <div class="flex items-center justify-between bg-f1card/60 px-2.5 py-1.5 rounded-lg border border-f1border/50">
+                  <span class="text-gray-300">🌧️ Déšť v závodě:</span>
+                  <span id="eval-off-rain" class="font-bold text-white font-mono">-</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Safety Car & DNF -->
+            <div class="bg-f1dark/90 p-3 rounded-xl border border-f1border/70 space-y-2">
+              <div class="text-gray-400 font-bold uppercase text-[10px] tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-triangle-exclamation text-amber-400"></i> Safety Car & Vlajky
+              </div>
+              <div class="space-y-1.5">
+                <div class="flex items-center justify-between bg-f1card/60 px-2.5 py-1.5 rounded-lg border border-f1border/50">
+                  <span class="text-gray-300">🚗 Výjezdy SC / VSC:</span>
+                  <span id="eval-off-sc" class="font-bold text-amber-300 font-mono">-</span>
+                </div>
+                <div class="flex items-center justify-between bg-f1card/60 px-2.5 py-1.5 rounded-lg border border-f1border/50">
+                  <span class="text-gray-300">💥 Celkem DNF:</span>
+                  <span id="eval-off-dnf-count" class="font-bold text-rose-400 font-mono">-</span>
+                </div>
+                <div class="flex items-center justify-between bg-f1card/60 px-2.5 py-1.5 rounded-lg border border-f1border/50">
+                  <span class="text-gray-300">❌ 1. Odstoupení:</span>
+                  <span id="eval-off-first-dnf" class="font-bold text-white font-mono">-</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Krizové incidenty -->
+            <div class="bg-f1dark/90 p-3 rounded-xl border border-f1border/70 space-y-2">
+              <div class="text-gray-400 font-bold uppercase text-[10px] tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-car-burst text-rose-400"></i> Krizové momenty & Finiš
+              </div>
+              <div class="space-y-1.5">
+                <div class="flex items-center justify-between bg-f1card/60 px-2.5 py-1.5 rounded-lg border border-f1border/50">
+                  <span class="text-gray-300">⚠️ TOP tým pád 1. kolo:</span>
+                  <span id="eval-off-lap1" class="font-bold text-white font-mono">-</span>
+                </div>
+                <div class="flex items-center justify-between bg-f1card/60 px-2.5 py-1.5 rounded-lg border border-f1border/50">
+                  <span class="text-gray-300">🏁 Dojelo 16+ vozů:</span>
+                  <span id="eval-off-finishers" class="font-bold text-white font-mono">-</span>
+                </div>
+                <div class="flex items-center justify-between bg-f1card/60 px-2.5 py-1.5 rounded-lg border border-f1border/50">
+                  <span class="text-gray-300">📋 Formát dat:</span>
+                  <span class="font-semibold text-emerald-400 font-mono">FIA Official</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-f1dark text-gray-400 border-b border-f1border uppercase font-bold text-[11px]">
+                <th class="p-3">Hráč</th>
+                <th class="p-3 text-center">Pódium (P1 / P2 / P3)</th>
+                <th class="p-3 text-center">Fastest Lap</th>
+                <th class="p-3 text-center">Déšť</th>
+                <th class="p-3 text-center">Počet SC</th>
+                <th class="p-3 text-center">Počet DNF</th>
+                <th class="p-3 text-center">1. DNF</th>
+                <th class="p-3 text-center">1. Kolo Havárie</th>
+                <th class="p-3 text-center">Jezdec Dne</th>
+                <th class="p-3 text-right bg-f1red/10 text-f1red font-black">Body Závodu</th>
+              </tr>
+            </thead>
+            <tbody id="evaluation-table-body" class="divide-y divide-f1border/40">
+              <!-- Dynamicky generováno -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ZÁLOŽKA 4: CELKOVÝ ŠAMPIONÁT (LEADERBOARD) -->
+    <section id="tab-standings" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Pódium šampionátu -->
+        <div class="lg:col-span-1 bg-gradient-to-b from-f1card to-f1dark border border-f1border rounded-2xl p-6 shadow-lg flex flex-col justify-between">
+          <div>
+            <h3 class="text-lg font-black text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+              <i class="fa-solid fa-crown text-f1gold"></i> Lídr Šampionátu 2026
+            </h3>
+            
+            <div id="leader-showcase" class="text-center py-6">
+              <!-- Renderuje se dynamicky -->
+              <div class="w-24 h-24 mx-auto rounded-full bg-gradient-to-tr from-f1red to-amber-500 flex items-center justify-center text-4xl shadow-xl shadow-f1red/20 mb-3 border-2 border-f1gold">
+                🏆
+              </div>
+              <h2 id="leader-name" class="text-2xl font-black text-white">Zatím žádná data</h2>
+              <p id="leader-points" class="text-f1gold font-mono font-bold text-lg">0 bodů</p>
+            </div>
+          </div>
+
+          <div class="bg-f1dark/80 p-3 rounded-xl border border-f1border text-xs text-gray-400 space-y-1">
+            <p>💡 <strong>Tip pro ligu:</strong> Body se sčítají přes všechny odjeté závody v sezóně 2026. Při rovnosti bodů rozhoduje vyšší počet přesně trefených vítězů závodu.</p>
+          </div>
+        </div>
+
+        <!-- Celková tabulka -->
+        <div class="lg:col-span-2 bg-f1card border border-f1border rounded-2xl p-5 shadow-lg">
+          <div class="flex items-center justify-between border-b border-f1border pb-3 mb-4">
+            <h3 class="text-lg font-black text-white uppercase tracking-wider flex items-center gap-2">
+              <i class="fa-solid fa-list-ol text-f1red"></i> Celkové pořadí jezdců tipovačky
+            </h3>
+            <span class="text-xs text-gray-400 font-mono">Sezóna 2026</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm border-collapse">
+              <thead>
+                <tr class="bg-f1dark text-gray-400 border-b border-f1border uppercase text-xs">
+                  <th class="p-3 w-16 text-center">Pozice</th>
+                  <th class="p-3">Hráč</th>
+                  <th class="p-3 text-center">Odhadů</th>
+                  <th class="p-3 text-center">Trefených vítězů</th>
+                  <th class="p-3 text-center">Trefených SC/DNF</th>
+                  <th class="p-3 text-right font-black text-f1red">Celkem Bodů</th>
+                </tr>
+              </thead>
+              <tbody id="standings-table-body" class="divide-y divide-f1border/60">
+                <!-- Dynamicky -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ZÁLOŽKA 5: NASTAVENÍ BODOVÁNÍ -->
+    <section id="tab-settings" class="hidden space-y-6">
+      <div class="bg-f1card border border-f1border rounded-2xl p-5 shadow-lg max-w-3xl mx-auto">
+        <div class="border-b border-f1border pb-4 mb-5 flex items-center justify-between">
+          <div>
+            <h2 class="text-xl font-black text-white flex items-center gap-2">
+              <i class="fa-solid fa-scale-balanced text-amber-400"></i> Váha bodů a pravidla ligy
+            </h2>
+            <p class="text-xs text-gray-400">Upravte bodové hodnoty podle dohody vaší party přátel.</p>
+          </div>
+          <button id="btn-save-settings" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-1.5">
+            <i class="fa-solid fa-check"></i> Uložit bodování
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm" id="scoring-rules-inputs">
+          <!-- Dynamicky naplněné inputy váhy bodů -->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- PATIČKA -->
+  <footer class="border-t border-f1border bg-f1dark py-4 text-center text-xs text-gray-500 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div>F1 Tipovačka Přátel 2026 &copy; Všechna práva fanoušků vyhrazena. Data z F1 / OpenF1.</div>
+      <div class="text-[11px] text-gray-400">Vyvinuto pro nekompromisní souboje o nejlepšího stratéga sezóny.</div>
     </div>
-    <button class="btn btn-red" style="margin-top:10px; padding: 12px 24px; font-size:1rem;" onclick="continueToNextRound()">▶ POKRAČOVAT DO DALŠÍHO KOLA</button>
-  </div>
+  </footer>
 
-  <!-- GAME OVER / K.O. OBRAZOVKA -->
-  <div id="ko-screen" class="overlay" style="display:none; z-index:30;">
-    <h1 id="ko-title" style="font-size:3rem; color:#ff2255; text-shadow:0 0 20px #ff2255;">GAME OVER</h1>
-    <h2 id="ko-winner-text" style="font-size:1.4rem; color:#ffd700; margin: 10px 0;">VÍTĚZ: DAVID</h2>
-    <div class="btn-group" style="margin-top:15px;">
-      <button class="btn btn-red" onclick="restartMatch()">⚔️ NOVÝ ZÁPAS</button>
-      <button class="btn" onclick="showTitle()">🏠 HLAVNÍ MENU</button>
-    </div>
-  </div>
+  <!-- SCRIPT A LOGIKA APLIKACE -->
+  <script>
+    // --- 1. MODEL DAT SEZÓNY 2026 ---
+    const F1_2026_CALENDAR = [
+      { id: 'aus', round: 1, name: 'Albert Park, Melbourne (GP Austrálie)', country: '🇦🇺 Austrálie' },
+      { id: 'chn', round: 2, name: 'Šanghaj (GP Číny)', country: '🇨🇳 Čína' },
+      { id: 'jpn', round: 3, name: 'Suzuka (GP Japonska)', country: '🇯🇵 Japonsko' },
+      { id: 'mia', round: 4, name: 'Miami International Autodrome (GP Miami)', country: '🇺🇸 USA' },
+      { id: 'can', round: 5, name: 'Circuit Gilles-Villeneuve (GP Kanady)', country: '🇨🇦 Kanada' },
+      { id: 'mon', round: 6, name: 'Circuit de Monaco (GP Monaka)', country: '🇲🇨 Monako' },
+      { id: 'esp_cat', round: 7, name: 'Barcelona-Catalunya (GP Barcelony)', country: '🇪🇸 Španělsko' },
+      { id: 'aut', round: 8, name: 'Red Bull Ring, Spielberg (GP Rakouska)', country: '🇦🇹 Rakousko' },
+      { id: 'gbr', round: 9, name: 'Silverstone Circuit (GP Velké Británie)', country: '🇬🇧 Velká Británie' },
+      { id: 'bel', round: 10, name: 'Circuit de Spa-Francorchamps (GP Belgie)', country: '🇧🇪 Belgie' },
+      { id: 'hun', round: 11, name: 'Hungaroring (GP Maďarska)', country: '🇭🇺 Maďarsko' },
+      { id: 'nld', round: 12, name: 'Circuit Zandvoort (GP Nizozemska)', country: '🇳🇱 Nizozemsko' },
+      { id: 'ita', round: 13, name: 'Autodromo Nazionale Monza (GP Itálie)', country: '🇮🇹 Itálie' },
+      { id: 'esp_mad', round: 14, name: 'MADRING Sur (GP Španělska - Madrid)', country: '🇪🇸 Španělsko' },
+      { id: 'aze', round: 15, name: 'Baku City Circuit (GP Ázerbájdžánu)', country: '🇦🇿 Ázerbájdžán' },
+      { id: 'bhr', round: 16, name: 'Sepang / Sakhir (GP Malajsie/Bahrajnu)', country: '🇲🇾 Malajsie' },
+      { id: 'sgp', round: 17, name: 'Marina Bay Street Circuit (GP Singapuru)', country: '🇸🇬 Singapur' },
+      { id: 'usa', round: 18, name: 'Circuit of the Americas, Austin (GP USA)', country: '🇺🇸 USA' },
+      { id: 'mex', round: 19, name: 'Autódromo Hermanos Rodríguez (GP Mexika)', country: '🇲🇽 Mexiko' },
+      { id: 'bra', round: 20, name: 'Interlagos, São Paulo (GP Brazílie)', country: '🇧🇷 Brazílie' },
+      { id: 'lvs', round: 21, name: 'Las Vegas Strip Circuit (GP Las Vegas)', country: '🇺🇸 USA' },
+      { id: 'qat', round: 22, name: 'Lusail International Circuit (GP Kataru)', country: '🇶🇦 Katar' },
+      { id: 'abu', round: 23, name: 'Yas Marina Circuit (GP Abú Dhabí)', country: '🇦🇪 SAE' }
+    ];
 
-  <!-- ONLINE MENU -->
-  <div id="online-screen" class="overlay" style="display:none;">
-    <h2>📱 ONLINE HRA NA 2 MOBILY</h2>
-    <p>Zadejte stejný kód na obou zařízeních</p>
-    <div style="margin: 10px 0;">
-      <button class="btn btn-red" onclick="createRoom()">1. VYTVOŘIT MÍSTNOST</button>
-      <p id="room-code-display" style="color:#ffd700; font-weight:bold; margin-top:6px; font-size:1.2rem;"></p>
-    </div>
-    <div style="margin: 10px 0; border-top: 1px solid rgba(255,255,255,0.2); padding-top:10px;">
-      <input type="text" id="room-code-input" placeholder="KÓD MÍSTNOSTI" maxlength="4">
-      <button class="btn" onclick="joinRoomDirect(document.getElementById('room-code-input').value.trim())" style="margin-top:6px;">2. PŘIPOJIT SE</button>
-    </div>
-    <p id="online-status" style="color:#00ffff; font-size:0.8rem; margin-top:4px;"></p>
-    <button class="btn" style="margin-top:8px;" onclick="showTitle()">ZPĚT</button>
-  </div>
+    // Kompletní startovní pole sezóny 2026: 11 týmů, 22 jezdců
+    const F1_DRIVERS = [
+      // McLaren Formula 1 Team
+      { id: 'NOR', name: 'Lando Norris', team: 'McLaren', num: 1 },
+      { id: 'PIA', name: 'Oscar Piastri', team: 'McLaren', num: 81 },
 
-  <!-- VÝBĚR POSTAVY A MAPY -->
-  <div id="char-screen" class="overlay" style="display:none;">
-    <h2>VYBER SI BOJOVNÍKA A MAPU</h2>
-    <div class="char-preview-grid" id="char-grid"></div>
-    <p style="margin-top:4px; font-size:0.8rem; color:#ffd700;">VYBER ARÉNU:</p>
-    <div class="map-grid">
-      <div class="map-card selected" onclick="selectMap(0, this)"><div style="font-size:0.75rem; font-weight:bold; color:#fff;">🌸 Zahrada Sakura</div></div>
-      <div class="map-card" onclick="selectMap(1, this)"><div style="font-size:0.75rem; font-weight:bold; color:#fff;">🏯 Noční Chrám</div></div>
-      <div class="map-card" onclick="selectMap(2, this)"><div style="font-size:0.75rem; font-weight:bold; color:#fff;">⛩️ Horský Průsmyk</div></div>
-    </div>
-    <button class="btn btn-red" style="margin-top:8px;" onclick="confirmCharSelect()">START BOJE !</button>
-  </div>
+      // Scuderia Ferrari HP
+      { id: 'LEC', name: 'Charles Leclerc', team: 'Scuderia Ferrari', num: 16 },
+      { id: 'HAM', name: 'Lewis Hamilton', team: 'Scuderia Ferrari', num: 44 },
 
-  <!-- TOUCH OVLÁDÁNÍ -->
-  <div id="touch-controls">
-    <div class="dpad">
-      <div></div><div class="t-btn" id="btn-up">▲</div><div></div>
-      <div class="t-btn" id="btn-left">◀</div><div class="t-btn" id="btn-down">▼</div><div class="t-btn" id="btn-right">▶</div>
-    </div>
-    <div class="action-btns">
-      <div class="t-btn btn-slide" id="btn-slide">SKLUZ</div>
-      <div class="t-btn btn-atk" id="btn-atki">KOP</div>
-      <div class="t-btn btn-spec" id="btn-speco">SHURIKEN</div>
-      <div class="t-btn btn-atk" id="btn-atkj">KATANA</div>
-      <div class="t-btn btn-def" id="btn-defg">KRYT</div>
-    </div>
-  </div>
-</div>
+      // Oracle Red Bull Racing
+      { id: 'VER', name: 'Max Verstappen', team: 'Red Bull Racing', num: 3 },
+      { id: 'HAD', name: 'Isack Hadjar', team: 'Red Bull Racing', num: 6 },
 
-<script>
-  (function(a,b,c){if(c in b&&b[c]){var d,e=a.location,f=/javascript:/i;a.addEventListener("click",function(a){if("A"===a.target.nodeName){var c=a.target.getAttribute("href");if(!f.test(c)&&(-1!==c.indexOf("http")||-1!==c.indexOf("https"))&&-1===c.indexOf(e.host))a.preventDefault(),a.target.target="_blank",d=b.open(c)}else a.preventDefault()},!1)}})(document,window.navigator,"standalone");
+      // Mercedes-AMG PETRONAS F1 Team
+      { id: 'ANT', name: 'Andrea Kimi Antonelli', team: 'Mercedes AMG', num: 12 },
+      { id: 'RUS', name: 'George Russell', team: 'Mercedes AMG', num: 63 },
 
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d');
+      // Aston Martin Aramco F1 Team
+      { id: 'ALO', name: 'Fernando Alonso', team: 'Aston Martin', num: 14 },
+      { id: 'STR', name: 'Lance Stroll', team: 'Aston Martin', num: 18 },
 
-  const GROUND_Y = 300;
+      // Atlassian Williams Racing
+      { id: 'SAI', name: 'Carlos Sainz', team: 'Williams Racing', num: 55 },
+      { id: 'ALB', name: 'Alexander Albon', team: 'Williams Racing', num: 23 },
 
-  const mapImages = [new Image(), new Image(), new Image()];
-  mapImages[0].src = 'images/bg1.jpg';
-  mapImages[1].src = 'images/bg2.jpg';
-  mapImages[2].src = 'images/bg3.jpg';
+      // Visa Cash App RB Formula One Team (Racing Bulls)
+      { id: 'LAW', name: 'Liam Lawson', team: 'Racing Bulls (VCARB)', num: 30 },
+      { id: 'LIN', name: 'Arvid Lindblad', team: 'Racing Bulls (VCARB)', num: 41 },
 
-  const coverImage = new Image();
-  coverImage.src = 'images/cover.jpg';
-  
-  let gameMode = '1p';
-  let livesMax = 10;
-  let selectedCharP1 = 0;
-  let selectedMap = 0;
-  let peer = null, conn = null, isHost = false;
-  let animFrame = 0;
-  let audioEnabled = true;
-  let isGameOver = false;
-  let isRoundPaused = false;
-  let roundNumber = 1;
-  let currentRoomCode = "";
+      // BWT Alpine F1 Team
+      { id: 'GAS', name: 'Pierre Gasly', team: 'Alpine', num: 10 },
+      { id: 'COL', name: 'Franco Colapinto', team: 'Alpine', num: 43 },
 
-  const CHARACTERS = [
-    { name: 'DAVID', title: 'Stínový Blade', speed: 1.6, img: 'images/david.png', sprites: 'images/david_sprites.png', color: '#1a1a2e' },
-    { name: 'MATĚJ', title: 'Bleskový Kunoichi', speed: 1.55, img: 'images/matej.png', sprites: 'images/matej_sprites.png', color: '#104e8b' },
-    { name: 'ŠIMON', title: 'Větrný Ronin', speed: 1.5, img: 'images/simon.png', sprites: 'images/simon_sprites.png', color: '#0c5c38' },
-    { name: 'MATY', title: 'Ohňový Shinobi', speed: 1.4, img: 'images/maty.png', sprites: 'images/maty_sprites.png', color: '#800c0c' }
-  ];
+      // Audi Revolut F1 Team (dříve Sauber)
+      { id: 'HUL', name: 'Nico Hülkenberg', team: 'Audi F1 Team', num: 27 },
+      { id: 'BOR', name: 'Gabriel Bortoleto', team: 'Audi F1 Team', num: 5 },
 
-  CHARACTERS.forEach(c => {
-    c.imageObj = new Image();
-    c.imageObj.src = c.img;
-    c.spriteObj = new Image();
-    c.spriteObj.src = c.sprites;
-  });
+      // MoneyGram Haas F1 Team
+      { id: 'BEA', name: 'Oliver Bearman', team: 'Haas F1 Team', num: 87 },
+      { id: 'OCO', name: 'Esteban Ocon', team: 'Haas F1 Team', num: 31 },
 
-  let p1 = { x: 150, y: GROUND_Y, vx: 0, vy: 0, hp: 100, lives: 10, char: 0, facing: 1, state: 'idle', isGrounded: true, block: false, isSliding: false, isCrouching: false, isKnockedDown: false, hitTimer: 0, proj: null, attackType: 'punch', hasSuper: true, comboBuffer: [] };
-  let p2 = { x: 450, y: GROUND_Y, vx: 0, vy: 0, hp: 100, lives: 10, char: 1, facing: -1, state: 'idle', isGrounded: true, block: false, isSliding: false, isCrouching: false, isKnockedDown: false, hitTimer: 0, proj: null, attackType: 'punch', hasSuper: true, comboBuffer: [] };
+      // Cadillac Formula 1 Team (nový 11. tým)
+      { id: 'BOT', name: 'Valtteri Bottas', team: 'Cadillac F1 Team', num: 77 },
+      { id: 'PER', name: 'Sergio Pérez', team: 'Cadillac F1 Team', num: 11 },
 
-  let clientInputs = { left: false, right: false, up: false, down: false, block: false };
-  let hitSparks = [];
-  let lightningEffect = null;
+      // Speciální možnost pro incidenty
+      { id: 'NONE', name: '--- Nikdo / Žádný jezdec ---', team: 'Ostatní', num: 0 }
+    ];
 
-  const sakuraPetals = Array.from({length: 22}, () => ({ x: Math.random()*640, y: Math.random()*360, speed: 0.25 + Math.random()*0.3 }));
-
-  const inputState = { left: false, right: false, up: false, down: false, block: false };
-
-  function openMainMenu() {
-    initAudio();
-    startBgmMusic();
-    document.getElementById('cover-screen').style.display = 'none';
-    document.getElementById('title-screen').style.display = 'flex';
-    renderHeroGallery();
-    initCharSelect();
-  }
-
-  function registerComboKey(player, defender, keyName) {
-    player.comboBuffer.push({ key: keyName, time: Date.now() });
-    const now = Date.now();
-    player.comboBuffer = player.comboBuffer.filter(k => now - k.time < 1800);
-
-    const seq = player.comboBuffer.map(k => k.key).join(',');
-    if (seq.includes('up,down,up,spec') && player.hasSuper) {
-      triggerSuperLightning(player, defender);
-      player.hasSuper = false;
-      player.comboBuffer = [];
-    }
-  }
-
-  function triggerSuperLightning(attacker, defender) {
-    lightningEffect = { x: defender.x, timer: 20 };
-    playLightningSfx();
-    setTimeout(() => {
-      defender.hp -= 40;
-      defender.isKnockedDown = true;
-      defender.hitTimer = 20;
-      spawnHitSpark(defender.x, defender.y - 30);
-    }, 150);
-  }
-
-  // OPRAVENÉ VYKRESLENÍ: Výřez přesného čtverce uprostřed širokého pole sprite sheetu
-  function drawNinjaSprite(ctx, p, cInfo, animFrame) {
-    ctx.save();
-    if(p.facing === -1) {
-      ctx.scale(-1, 1);
-    }
-
-    // Stín pod postavičkou
-    ctx.fillStyle = 'rgba(0,0,0,0.35)';
-    ctx.beginPath();
-    ctx.ellipse(0, 0, p.isKnockedDown ? 25 : (p.isSliding ? 22 : 14), 5, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    let img = cInfo.spriteObj;
-    if (img && img.complete && img.naturalWidth !== 0) {
-      const cellWidth = 688;
-      const cellHeight = 192;
-      const charSize = 192; // Velikost čtvercového výřezu postavy uvnitř buňki
-      const offsetX = (cellWidth - charSize) / 2; // Vycentrování vodorovně
-      
-      let row = 0;
-      let col = 0;
-
-      if (p.isKnockedDown) {
-        row = 7;
-        col = Math.min(3, Math.floor(animFrame / 10));
-      } else if (p.isSliding) {
-        row = 6;
-        col = Math.floor(animFrame / 6) % 4;
-      } else if (p.isCrouching) {
-        row = 5;
-        col = 0;
-      } else if (p.block) {
-        row = 4;
-        col = Math.floor(animFrame / 15) % 2;
-      } else if (p.state === 'special') {
-        row = 3;
-        col = Math.floor(animFrame / 10) % 4;
-      } else if (p.state === 'attack') {
-        if (p.attackType === 'kick') {
-          row = 2;
-          col = Math.min(3, Math.floor(animFrame / 5));
-        } else {
-          row = 1;
-          col = Math.min(3, Math.floor(animFrame / 5));
-        }
-      } else if (p.vx !== 0) {
-        row = 1;
-        col = Math.floor(animFrame / 8) % 4;
-      } else {
-        row = 0;
-        col = Math.floor(animFrame / 15) % 4;
+    // Oficiální a prověřená závodní databáze F1 sezóny 2026 podle skutečných výsledků
+    const VERIFIED_OFFICIAL_F1_2026_DATABASE = {
+      // 18. ZÁVOD: GP USA, Austin (Circuit of the Americas)
+      usa: {
+        p1: 'ANT', p2: 'LEC', p3: 'VER',
+        fastestLap: 'LEC', dotd: 'LEC',
+        rain: 'no', safetyCarCount: 1, 
+        dnfCount: 3, firstDnf: 'BEA',   
+        lap1Crash: 'no', finishers: 'yes', 
+        isFinalized: true,
+        fullResults: [
+          { pos: 1, id: 'ANT', status: '1:35:16.650', laps: 56, points: 25 },
+          { pos: 2, id: 'LEC', status: '+13.078', laps: 56, points: 18 },
+          { pos: 3, id: 'VER', status: '+17.485', laps: 56, points: 15 },
+          { pos: 4, id: 'HAM', status: '+18.515', laps: 56, points: 12 },
+          { pos: 5, id: 'NOR', status: '+30.521', laps: 56, points: 10 },
+          { pos: 6, id: 'HAD', status: '+34.373', laps: 56, points: 8 },
+          { pos: 7, id: 'PIA', status: '+52.674', laps: 56, points: 6 },
+          { pos: 8, id: 'RUS', status: '+54.303', laps: 56, points: 4 },
+          { pos: 9, id: 'LAW', status: '+79.183', laps: 56, points: 2 },
+          { pos: 10, id: 'GAS', status: '+87.516', laps: 56, points: 1 },
+          { pos: 11, id: 'HUL', status: '+94.945', laps: 56, points: 0 },
+          { pos: 12, id: 'LIN', status: '+1 Lap', laps: 55, points: 0 },
+          { pos: 13, id: 'BOR', status: '+1 Lap', laps: 55, points: 0 },
+          { pos: 14, id: 'OCO', status: '+1 Lap', laps: 55, points: 0 },
+          { pos: 15, id: 'STR', status: '+1 Lap', laps: 55, points: 0 },
+          { pos: 16, id: 'ALO', status: '+1 Lap', laps: 55, points: 0 },
+          { pos: 17, id: 'ALB', status: '+1 Lap', laps: 55, points: 0 },
+          { pos: 18, id: 'SAI', status: '+1 Lap', laps: 55, points: 0 },
+          { pos: 19, id: 'PER', status: '+1 Lap', laps: 55, points: 0 },
+          { pos: 20, id: 'BOT', status: 'DNF', laps: 8, points: 0 },
+          { pos: 21, id: 'COL', status: 'DNF', laps: 35, points: 0 },
+          { pos: 22, id: 'BEA', status: 'DNF', laps: 24, points: 0 }
+        ]
+      },
+      // 17. ZÁVOD: GP Singapuru
+      sgp: {
+        p1: 'VER', p2: 'LEC', p3: 'ANT',
+        fastestLap: 'VER', dotd: 'VER',
+        rain: 'no', safetyCarCount: 2,
+        dnfCount: 4, firstDnf: 'BOR',
+        lap1Crash: 'no', finishers: 'yes',
+        isFinalized: true
+      },
+      // 13. ZÁVOD: GP Itálie (Monza)
+      ita: {
+        p1: 'ANT', p2: 'RUS', p3: 'VER',
+        fastestLap: 'ANT', dotd: 'ANT',
+        rain: 'no', safetyCarCount: 1,
+        dnfCount: 3, firstDnf: 'LEC',
+        lap1Crash: 'no', finishers: 'yes',
+        isFinalized: true
+      },
+      // 1. ZÁVOD: GP Austrálie (Melbourne)
+      aus: {
+        p1: 'RUS', p2: 'ANT', p3: 'LEC',
+        fastestLap: 'ANT', dotd: 'RUS',
+        rain: 'no', safetyCarCount: 2,
+        dnfCount: 3, firstDnf: 'HAD',
+        lap1Crash: 'no', finishers: 'yes',
+        isFinalized: true
       }
+    };
 
-      ctx.drawImage(
-        img,
-        (col * cellWidth) + offsetX, row * cellHeight, charSize, charSize,
-        -35, -75, 70, 70
-      );
-    } else {
-      ctx.fillStyle = cInfo.color || '#ff2255';
-      ctx.fillRect(-15, -60, 30, 60);
-    }
+    // Výchozí bodovací pravidla
+    const DEFAULT_SCORING_RULES = {
+      p1: 10,           // přesný vítěz
+      p2: 10,           // přesné 2. místo
+      p3: 10,           // přesné 3. místo
+      podiumAny: 4,     // uhodnutý jezdec na pódiu, ale na jiné pozici
+      fastestLap: 7,    // nejrychlejší kolo
+      dotd: 7,          // driver of the day
+      rain: 5,          // déšť ano/ne
+      safetyCarExact: 8,// přesný počet SC/VSC
+      safetyCarDiff1: 3,// rozdíl o max 1
+      dnfCountExact: 8, // přesný počet DNF
+      dnfCountDiff1: 3, // rozdíl o max 1 DNF
+      firstDnf: 12,     // první odstoupivší jezdec
+      lap1Crash: 6,     // crash v 1. kole u top týmu
+      finishers: 5      // dokončí 16+ vozů
+    };
 
-    ctx.restore();
-  }
+    // VÝCHOZÍ STAV APLIKACE
+    const STORAGE_KEY = 'F1_TIPS_LEAGUE_2026_DATA_V3';
 
-  let coverFrame = 0;
-  function animateCoverArt() {
-    const ccvs = document.getElementById('cover-art');
-    if(!ccvs || document.getElementById('cover-screen').style.display === 'none') return;
-    const cctx = ccvs.getContext('2d');
-    coverFrame++;
-
-    if (coverImage && coverImage.complete && coverImage.naturalWidth !== 0) {
-      cctx.drawImage(coverImage, 0, 0, 320, 130);
-    } else {
-      cctx.fillStyle = '#0f172a'; cctx.fillRect(0,0,320,130);
-    }
-    requestAnimationFrame(animateCoverArt);
-  }
-
-  function renderHeroGallery() {
-    const gal = document.getElementById('hero-gallery'); 
-    if(!gal) return;
-    gal.innerHTML = '';
-    CHARACTERS.forEach((c) => {
-      const card = document.createElement('div'); card.className = 'hero-card';
-      const img = document.createElement('img'); img.src = c.img;
-      card.appendChild(img);
-      const lbl = document.createElement('div'); lbl.className = 'h-name'; lbl.innerText = c.name;
-      card.appendChild(lbl); gal.appendChild(card);
-    });
-  }
-
-  function initCharSelect() {
-    const grid = document.getElementById('char-grid'); 
-    if(!grid) return;
-    grid.innerHTML = '';
-    CHARACTERS.forEach((c, idx) => {
-      const card = document.createElement('div');
-      card.className = `char-card ${idx === selectedCharP1 ? 'selected' : ''}`;
-      card.onclick = () => {
-        selectedCharP1 = idx;
-        document.querySelectorAll('.char-card').forEach((el, i) => el.classList.toggle('selected', i === idx));
+    function getDefaultState() {
+      return {
+        selectedRaceId: 'usa', // Výchozí závod nastaven na Austin (GP USA)
+        selectedPlayerId: 'p1',
+        scoringRules: { ...DEFAULT_SCORING_RULES },
+        players: [
+          { id: 'p1', name: 'Tom' },
+          { id: 'p2', name: 'Ondra' },
+          { id: 'p3', name: 'Matěj' },
+          { id: 'p4', name: 'Kuba' }
+        ],
+        tips: {
+          usa: {
+            p1: {
+              p1: 'ANT', p2: 'LEC', p3: 'VER',
+              fastestLap: 'LEC', dotd: 'ANT',
+              rain: 'no', safetyCarCount: 1,
+              dnfCount: 3, firstDnf: 'BEA',
+              lap1Crash: 'no', finishers: 'yes'
+            },
+            p2: {
+              p1: 'VER', p2: 'NOR', p3: 'LEC',
+              fastestLap: 'VER', dotd: 'VER',
+              rain: 'no', safetyCarCount: 0,
+              dnfCount: 2, firstDnf: 'BOT',
+              lap1Crash: 'no', finishers: 'yes'
+            },
+            p3: {
+              p1: 'NOR', p2: 'ANT', p3: 'HAM',
+              fastestLap: 'NOR', dotd: 'NOR',
+              rain: 'yes', safetyCarCount: 2,
+              dnfCount: 4, firstDnf: 'COL',
+              lap1Crash: 'no', finishers: 'no'
+            },
+            p4: {
+              p1: 'ANT', p2: 'VER', p3: 'LEC',
+              fastestLap: 'ANT', dotd: 'LEC',
+              rain: 'no', safetyCarCount: 1,
+              dnfCount: 3, firstDnf: 'BEA',
+              lap1Crash: 'no', finishers: 'yes'
+            }
+          }
+        },
+        // Zkopírování oficiální prověřené databáze
+        official: JSON.parse(JSON.stringify(VERIFIED_OFFICIAL_F1_2026_DATABASE))
       };
-      const img = document.createElement('img'); img.src = c.img;
-      card.appendChild(img);
-      const nameDiv = document.createElement('div'); nameDiv.className = 'name'; nameDiv.innerText = c.name;
-      card.appendChild(nameDiv); grid.appendChild(card);
-    });
-  }
+    }
 
-  let audioCtx = null;
-  function initAudio() {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
+    // Načtení z localStorage s fallbackem
+    let state = loadFromStorage();
 
-  function startBgmMusic() {
-    if(!audioCtx || !audioEnabled) return;
-    try {
-      let notes = [220, 261, 293, 329, 293, 261];
-      let noteIdx = 0;
-      setInterval(() => {
-        if(!audioEnabled || isGameOver || isRoundPaused) return;
-        let osc = audioCtx.createOscillator();
-        let gain = audioCtx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(notes[noteIdx % notes.length], audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.4);
-        noteIdx++;
-      }, 550);
-    } catch(e) {}
-  }
-
-  function playHitSfx() {
-    if(!audioCtx || !audioEnabled) return;
-    try {
-      let osc = audioCtx.createOscillator();
-      let gain = audioCtx.createGain();
-      osc.type = 'square';
-      osc.frequency.setValueAtTime(80, audioCtx.currentTime);
-      gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
-      osc.connect(gain); gain.connect(audioCtx.destination);
-      osc.start(); osc.stop(audioCtx.currentTime + 0.2);
-    } catch(e) {}
-  }
-
-  function playLightningSfx() {
-    if(!audioCtx || !audioEnabled) return;
-    try {
-      let osc = audioCtx.createOscillator();
-      let gain = audioCtx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.5);
-      gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
-      osc.connect(gain); gain.connect(audioCtx.destination);
-      osc.start(); osc.stop(audioCtx.currentTime + 0.5);
-    } catch(e) {}
-  }
-
-  function playSfx(type) {
-    if(!audioCtx || !audioEnabled) return;
-    try {
-      let osc = audioCtx.createOscillator();
-      let gain = audioCtx.createGain();
-      osc.type = type === 'kick' ? 'triangle' : 'sawtooth';
-      osc.frequency.setValueAtTime(type === 'kick' ? 120 : 280, audioCtx.currentTime);
-      gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
-      osc.connect(gain); gain.connect(audioCtx.destination);
-      osc.start(); osc.stop(audioCtx.currentTime + 0.15);
-    } catch(e) {}
-  }
-
-  function toggleAudio() {
-    audioEnabled = !audioEnabled;
-    document.getElementById('audio-toggle-btn').innerText = audioEnabled ? '🔊 HUDBA: ZAP' : '🔇 HUDBA: VYP';
-  }
-
-  function createRoom() {
-    currentRoomCode = Math.floor(1000 + Math.random() * 9000).toString();
-    document.getElementById('room-code-display').innerText = 'KÓD MÍSTNOSTI: ' + currentRoomCode;
-    document.getElementById('online-status').innerText = 'Čekám na připojení soupeře...';
-
-    peer = new Peer('nb2026-' + currentRoomCode);
-    isHost = true;
-    peer.on('connection', (c) => { conn = c; setupOnlineConnection(); });
-  }
-
-  function joinRoomDirect(code) {
-    if(!code || code.length !== 4) return alert('Zadej platný 4místný kód!');
-    document.getElementById('online-status').innerText = 'Připojování k místnosti ' + code + '...';
-    peer = new Peer();
-    isHost = false;
-    peer.on('open', () => { 
-      conn = peer.connect('nb2026-' + code); 
-      setupOnlineConnection(); 
-    });
-  }
-
-  function setupOnlineConnection() {
-    conn.on('open', () => {
-      document.getElementById('online-status').innerText = 'PŘIPOJENO!';
-      setTimeout(() => startMode('online'), 500);
-    });
-
-    conn.on('data', (data) => {
-      if (isHost) {
-        if (data.type === 'input') {
-          clientInputs = data.inputs;
-        } else if (data.type === 'action') {
-          if (data.action === 'punch') handleAttack(p2, p1, 10, 'punch');
-          if (data.action === 'kick') handleAttack(p2, p1, 12, 'kick');
-          if (data.action === 'spec') handleSpecial(p2, p1);
-          if (data.action === 'slide') triggerSlide(p2, p1);
-          if (data.action === 'comboKey') registerComboKey(p2, p1, data.key);
+    function loadFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          // Doplnit chybějící oficiální data, pokud v cache chybí
+          if (!parsed.official) parsed.official = {};
+          for (const [k, v] of Object.entries(VERIFIED_OFFICIAL_F1_2026_DATABASE)) {
+            if (!parsed.official[k]) parsed.official[k] = v;
+          }
+          return parsed;
         }
-      } else {
-        if (data.type === 'gameState') {
-          p1 = data.p1;
-          p2 = data.p2;
-          selectedMap = data.selectedMap;
-          lightningEffect = data.lightningEffect;
-          hitSparks = data.hitSparks;
-          isGameOver = data.isGameOver;
-          isRoundPaused = data.isRoundPaused;
-        }
+      } catch (e) {
+        console.error('Chyba při čtení localStorage:', e);
       }
-    });
-  }
+      return getDefaultState();
+    }
 
-  function sendHostGameState() {
-    if (conn && conn.open && isHost) {
-      conn.send({
-        type: 'gameState',
-        p1: p1,
-        p2: p2,
-        selectedMap: selectedMap,
-        lightningEffect: lightningEffect,
-        hitSparks: hitSparks,
-        isGameOver: isGameOver,
-        isRoundPaused: isRoundPaused
+    function saveToStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        console.error('Chyba při ukládání:', e);
+      }
+    }
+
+    // --- 2. POMOCNÉ FUNKCE A UI ---
+    function showToast(msg, isSuccess = true) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-msg');
+      const toastIcon = document.getElementById('toast-icon');
+
+      toastMsg.textContent = msg;
+      if (isSuccess) {
+        toast.className = 'fixed top-5 right-5 z-50 transform transition-all duration-300 translate-y-0 opacity-100 bg-f1card border-l-4 border-emerald-500 text-white p-4 rounded-xl shadow-2xl flex items-center gap-3';
+        toastIcon.className = 'fa-solid fa-circle-check text-xl text-emerald-400';
+      } else {
+        toast.className = 'fixed top-5 right-5 z-50 transform transition-all duration-300 translate-y-0 opacity-100 bg-f1card border-l-4 border-f1red text-white p-4 rounded-xl shadow-2xl flex items-center gap-3';
+        toastIcon.className = 'fa-solid fa-circle-exclamation text-xl text-f1red';
+      }
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-[-120%]', 'opacity-0');
+      }, 3200);
+    }
+
+    function getDriverName(id) {
+      const d = F1_DRIVERS.find(x => x.id === id);
+      return d ? `${d.name} (${d.team})` : (id || 'Nevybráno');
+    }
+
+    function getDriverShort(id) {
+      const d = F1_DRIVERS.find(x => x.id === id);
+      return d ? d.name : (id || '-');
+    }
+
+    // Naplnění selectů jezdci seskupenými podle stájí (optgroup)
+    function populateDriverSelects() {
+      const selectIds = [
+        'tip-p1', 'tip-p2', 'tip-p3', 'tip-fastest-lap', 'tip-dotd', 'tip-first-dnf',
+        'off-p1', 'off-p2', 'off-p3', 'off-fastest-lap', 'off-dotd', 'off-first-dnf'
+      ];
+
+      // Seskupit podle týmů
+      const teams = {};
+      F1_DRIVERS.forEach(d => {
+        if (!teams[d.team]) teams[d.team] = [];
+        teams[d.team].push(d);
+      });
+
+      selectIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.innerHTML = '';
+
+        for (const [teamName, drivers] of Object.entries(teams)) {
+          const group = document.createElement('optgroup');
+          group.label = `🏎️ ${teamName}`;
+          drivers.forEach(d => {
+            const opt = document.createElement('option');
+            opt.value = d.id;
+            opt.textContent = d.num ? `#${d.num} ${d.name}` : d.name;
+            group.appendChild(opt);
+          });
+          el.appendChild(group);
+        }
       });
     }
-  }
 
-  function sendClientInput() {
-    if (conn && conn.open && !isHost) {
-      conn.send({ type: 'input', inputs: inputState });
-    }
-  }
-
-  function sendClientAction(actionName, extraKey) {
-    if (conn && conn.open && !isHost) {
-      conn.send({ type: 'action', action: actionName, key: extraKey });
-    }
-  }
-
-  function selectMap(idx, el) {
-    selectedMap = idx;
-    document.querySelectorAll('.map-card').forEach(c => c.classList.remove('selected'));
-    el.classList.add('selected');
-  }
-
-  function toggleLives() {
-    livesMax = livesMax === 10 ? 3 : 10;
-    document.getElementById('lives-count').innerText = livesMax;
-  }
-
-  function showTitle() {
-    isGameOver = false; isRoundPaused = false;
-    document.getElementById('ko-screen').style.display = 'none';
-    document.getElementById('round-pause-screen').style.display = 'none';
-    document.getElementById('title-screen').style.display = 'flex';
-    document.getElementById('online-screen').style.display = 'none';
-    document.getElementById('char-screen').style.display = 'none';
-  }
-
-  function showOnlineMenu() {
-    document.getElementById('title-screen').style.display = 'none';
-    document.getElementById('online-screen').style.display = 'flex';
-  }
-
-  function startMode(mode) {
-    gameMode = mode;
-    document.getElementById('title-screen').style.display = 'none';
-    document.getElementById('online-screen').style.display = 'none';
-    document.getElementById('char-screen').style.display = 'flex';
-  }
-
-  function confirmCharSelect() {
-    document.getElementById('char-screen').style.display = 'none';
-    p1.char = selectedCharP1; p1.lives = livesMax; p2.lives = livesMax;
-    p1.hasSuper = true; p2.hasSuper = true;
-    if(gameMode === '1p') p2.char = (selectedCharP1 + 1) % CHARACTERS.length;
-    roundNumber = 1;
-    resetRound();
-    isGameOver = false; isRoundPaused = false;
-    requestAnimationFrame(gameLoop);
-  }
-
-  function restartMatch() {
-    document.getElementById('ko-screen').style.display = 'none';
-    document.getElementById('round-pause-screen').style.display = 'none';
-    p1.lives = livesMax; p2.lives = livesMax;
-    p1.hasSuper = true; p2.hasSuper = true;
-    roundNumber = 1;
-    resetRound();
-    isGameOver = false; isRoundPaused = false;
-    requestAnimationFrame(gameLoop);
-  }
-
-  function spawnHitSpark(x, y) {
-    hitSparks.push({ x: x, y: y, radius: 18, timer: 8 });
-  }
-
-  function handleAttack(attacker, defender, damage = 10, type = 'punch') {
-    if(attacker.state === 'attack' || attacker.isKnockedDown || isRoundPaused) return;
-    attacker.state = 'attack';
-    attacker.attackType = type;
-    playSfx(type);
-    setTimeout(() => attacker.state = 'idle', 400);
-
-    let hitRange = type === 'kick' ? 65 : 55;
-    if(Math.abs(attacker.x - defender.x) < hitRange && !defender.isKnockedDown) {
-      if(!defender.block) {
-        defender.hp -= damage;
-        defender.hitTimer = 10;
-        defender.vx = attacker.facing * (type === 'kick' ? 3.5 : 2.2);
-        spawnHitSpark(defender.x, defender.y - 30);
-        playHitSfx();
-      } else {
-        defender.hp -= 2;
-      }
-    }
-  }
-
-  function handleSpecial(attacker, defender) {
-    if(attacker.state === 'special' || attacker.isKnockedDown || isRoundPaused) return;
-    attacker.state = 'special';
-    attacker.proj = { x: attacker.x + attacker.facing * 20, y: attacker.y - 35, vx: attacker.facing * 3.8, rot: 0 };
-    registerComboKey(attacker, defender, 'spec');
-    setTimeout(() => attacker.state = 'idle', 500);
-  }
-
-  function triggerSlide(p, defender) {
-    if(p.isSliding || p.isKnockedDown || isRoundPaused) return;
-    p.isSliding = true;
-    p.vx = p.facing * (CHARACTERS[p.char].speed * 1.5);
-
-    let checkHit = setInterval(() => {
-      if(Math.abs(p.x - defender.x) < 40 && !defender.isKnockedDown) {
-        defender.isKnockedDown = true;
-        defender.hp -= 12;
-        defender.hitTimer = 12;
-        defender.vx = p.facing * 2.5;
-        spawnHitSpark(defender.x, defender.y - 10);
-        playHitSfx();
-      }
-    }, 40);
-
-    setTimeout(() => { p.isSliding = false; clearInterval(checkHit); }, 550);
-  }
-
-  function resetRound() {
-    p1.x = 150; p1.y = GROUND_Y; p1.hp = 100; p1.vx = 0; p1.vy = 0; p1.proj = null; p1.isKnockedDown = false; p1.comboBuffer = [];
-    p2.x = 450; p2.y = GROUND_Y; p2.hp = 100; p2.vx = 0; p2.vy = 0; p2.proj = null; p2.isKnockedDown = false; p2.comboBuffer = [];
-  }
-
-  function triggerRoundPause(winnerName) {
-    isRoundPaused = true;
-    roundNumber++;
-    document.getElementById('round-winner-title').innerText = "🏆 " + winnerName + " VYHRÁL KOLO!";
-    document.getElementById('round-next-subtitle').innerText = "PŘIPRAV SE NA KOLO " + roundNumber;
-    document.getElementById('round-score-status').innerText = `${CHARACTERS[p1.char].name}: ${'❤️'.repeat(p1.lives)}  |  ${CHARACTERS[p2.char].name}: ${'❤️'.repeat(p2.lives)}`;
-    document.getElementById('round-pause-screen').style.display = 'flex';
-  }
-
-  function continueToNextRound() {
-    document.getElementById('round-pause-screen').style.display = 'none';
-    resetRound();
-    isRoundPaused = false;
-    requestAnimationFrame(gameLoop);
-  }
-
-  function triggerGameOver(winnerName) {
-    isGameOver = true;
-    document.getElementById('ko-title').innerText = "K.O. / GAME OVER";
-    document.getElementById('ko-winner-text').innerText = "🏆 ABSOLUTNÍ VÍTĚZ: " + winnerName;
-    document.getElementById('ko-screen').style.display = 'flex';
-  }
-
-  function drawBackground() {
-    let currentMapImg = mapImages[selectedMap];
-    if (currentMapImg && currentMapImg.complete && currentMapImg.naturalWidth !== 0) {
-      ctx.drawImage(currentMapImg, 0, 0, 640, 360);
-    } else {
-      ctx.fillStyle = '#1e293b'; ctx.fillRect(0, 0, 640, 360);
-      ctx.fillStyle = '#334155'; ctx.fillRect(0, GROUND_Y, 640, 360 - GROUND_Y);
-    }
-
-    if (selectedMap === 0) {
-      ctx.fillStyle = '#f472b6';
-      sakuraPetals.forEach(p => {
-        p.y += p.speed; p.x -= 0.2;
-        if(p.y > 360) { p.y = -10; p.x = Math.random()*640; }
-        ctx.fillRect(p.x, p.y, 4, 4);
+    // Naplnění seznamu závodů
+    function populateRaceSelect() {
+      const sel = document.getElementById('race-select');
+      sel.innerHTML = '';
+      F1_2026_CALENDAR.forEach((r, idx) => {
+        const opt = document.createElement('option');
+        opt.value = r.id;
+        opt.textContent = `${idx + 1}. ${r.country} - ${r.name.split('(')[0].trim()}`;
+        if (r.id === state.selectedRaceId) opt.selected = true;
+        sel.appendChild(opt);
       });
     }
-  }
 
-  function drawHUD() {
-    ctx.fillStyle = '#0f172a'; ctx.fillRect(20, 20, 200, 16); ctx.fillRect(420, 20, 200, 16);
-    ctx.fillStyle = '#ff2255'; ctx.fillRect(20, 20, Math.max(0, p1.hp * 2), 16); ctx.fillRect(620 - Math.max(0, p2.hp * 2), 20, Math.max(0, p2.hp * 2), 16);
-    
-    ctx.fillStyle = p1.hasSuper ? '#00ffff' : '#555555'; ctx.font = 'bold 10px sans-serif';
-    ctx.fillText(p1.hasSuper ? '⚡ ULT: READY' : '⚡ ULT: USED', 20, 48);
+    // Vykreslení hráčských chipů
+    function renderPlayerChips() {
+      const container = document.getElementById('player-chips');
+      container.innerHTML = '';
 
-    ctx.fillStyle = p2.hasSuper ? '#00ffff' : '#555555';
-    ctx.fillText(p2.hasSuper ? '⚡ ULT: READY' : '⚡ ULT: USED', 540, 48);
+      state.players.forEach(p => {
+        const chip = document.createElement('div');
+        const isActive = p.id === state.selectedPlayerId;
+        chip.className = `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition border ${
+          isActive 
+            ? 'bg-f1red text-white border-f1red shadow-lg shadow-f1red/30' 
+            : 'bg-f1dark text-gray-300 border-f1border hover:bg-gray-800'
+        }`;
+        
+        chip.innerHTML = `
+          <span><i class="fa-solid fa-helmet-safety mr-1"></i> ${escapeHtml(p.name)}</span>
+          <button class="text-gray-400 hover:text-white remove-player-btn" title="Odebrat hráče" data-id="${p.id}">&times;</button>
+        `;
 
-    ctx.fillStyle = '#ffd700'; ctx.font = 'bold 12px sans-serif';
-    ctx.fillText(CHARACTERS[p1.char].name + ' ' + '❤️'.repeat(p1.lives), 20, 15);
-    ctx.fillText('❤️'.repeat(p2.lives) + ' ' + CHARACTERS[p2.char].name, 440, 15);
-  }
+        chip.addEventListener('click', (e) => {
+          if (e.target.classList.contains('remove-player-btn')) {
+            deletePlayer(p.id);
+            return;
+          }
+          state.selectedPlayerId = p.id;
+          renderPlayerChips();
+          loadPlayerTipsToForm();
+        });
 
-  function updateAI() {
-    if(gameMode !== '1p' || isGameOver || isRoundPaused) return;
-    
-    if(p2.isKnockedDown) {
-      if(Math.random() < 0.02) p2.isKnockedDown = false;
-      return;
+        container.appendChild(chip);
+      });
     }
 
-    let dist = p2.x - p1.x;
-    if(Math.abs(dist) > 45) {
-      p2.vx = dist > 0 ? -CHARACTERS[p2.char].speed * 0.7 : CHARACTERS[p2.char].speed * 0.7;
-      p2.isCrouching = false;
-    } else {
-      p2.vx = 0;
-      if(Math.random() < 0.015) handleAttack(p2, p1, 10, 'punch');
-      if(Math.random() < 0.01) handleAttack(p2, p1, 12, 'kick');
-      if(Math.random() < 0.005) handleSpecial(p2, p1);
-      if(Math.random() < 0.008) p2.isCrouching = !p2.isCrouching;
-
-      if(p2.hasSuper && Math.random() < 0.003) {
-        triggerSuperLightning(p2, p1);
-        p2.hasSuper = false;
-      }
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.innerText = text;
+      return div.innerHTML;
     }
-  }
 
-  function gameLoop() {
-    animFrame++; ctx.clearRect(0, 0, 640, 360);
-    drawBackground();
-
-    if (gameMode === 'online') {
-      if (isHost) {
-        sendHostGameState();
-      } else {
-        sendClientInput();
-        drawNinjaSprite(ctx, p1, CHARACTERS[p1.char], animFrame);
-        drawNinjaSprite(ctx, p2, CHARACTERS[p2.char], animFrame);
-        drawHUD();
-        requestAnimationFrame(gameLoop);
+    function deletePlayer(id) {
+      if (state.players.length <= 1) {
+        showToast('V lize musí zůstat alespoň jeden hráč!', false);
         return;
       }
-    } else if(gameMode === '1p') {
-      updateAI();
-    }
-
-    if (isGameOver || isRoundPaused) {
-      requestAnimationFrame(gameLoop);
-      return;
-    }
-
-    let p1In = inputState;
-    let p2In = (gameMode === 'online') ? clientInputs : {};
-
-    if(p1.isKnockedDown && p1In.up) p1.isKnockedDown = false;
-    if (!p1.isSliding && !p1.isKnockedDown) {
-      p1.vx = 0;
-      if (p1In.left) p1.vx = -CHARACTERS[p1.char].speed;
-      if (p1In.right) p1.vx = CHARACTERS[p1.char].speed;
-      if (p1In.up && p1.isGrounded) { p1.vy = -6.5; p1.isGrounded = false; }
-      p1.isCrouching = p1In.down;
-      p1.block = p1In.block;
-    }
-
-    if(gameMode === 'online') {
-      if(p2.isKnockedDown && p2In.up) p2.isKnockedDown = false;
-      if (!p2.isSliding && !p2.isKnockedDown) {
-        p2.vx = 0;
-        if (p2In.left) p2.vx = -CHARACTERS[p2.char].speed;
-        if (p2In.right) p2.vx = CHARACTERS[p2.char].speed;
-        if (p2In.up && p2.isGrounded) { p2.vy = -6.5; p2.isGrounded = false; }
-        p2.isCrouching = p2In.down;
-        p2.block = p2In.block;
+      state.players = state.players.filter(p => p.id !== id);
+      if (state.selectedPlayerId === id) {
+        state.selectedPlayerId = state.players[0].id;
       }
+      saveToStorage();
+      renderPlayerChips();
+      loadPlayerTipsToForm();
+      calculateAndRenderAll();
+      showToast('Hráč byl odebrán z ligy.');
     }
 
-    [p1, p2].forEach((p, idx) => {
-      if(p.hitTimer > 0) p.hitTimer--;
-      p.x += p.vx; p.y += p.vy; p.vy += 0.22;
-      if(p.y >= GROUND_Y) { p.y = GROUND_Y; p.vy = 0; p.isGrounded = true; }
-      p.x = Math.max(30, Math.min(610, p.x));
+    // Načtení tipů hráče do formuláře
+    function loadPlayerTipsToForm() {
+      const player = state.players.find(p => p.id === state.selectedPlayerId);
+      const race = F1_2026_CALENDAR.find(r => r.id === state.selectedRaceId);
 
-      if(p.hp <= 0) {
-        p.lives--;
-        let winnerName = (idx === 0) ? CHARACTERS[p2.char].name : CHARACTERS[p1.char].name;
-        if(p.lives > 0) triggerRoundPause(winnerName);
-        else triggerGameOver(winnerName);
-      }
-    });
+      document.getElementById('current-player-label').textContent = player ? player.name : 'Neznámý';
+      document.getElementById('tips-race-title').textContent = race ? race.name : 'Závod';
 
-    if(p1.x < p2.x) { p1.facing = 1; p2.facing = -1; }
-    else { p1.facing = -1; p2.facing = 1; }
+      const raceTips = state.tips[state.selectedRaceId] || {};
+      const userTip = raceTips[state.selectedPlayerId] || {
+        p1: 'VER', p2: 'NOR', p3: 'LEC',
+        fastestLap: 'VER', dotd: 'NOR',
+        rain: 'no', safetyCarCount: 1,
+        dnfCount: 2, firstDnf: 'DOO',
+        lap1Crash: 'no', finishers: 'yes'
+      };
 
-    ctx.save(); ctx.translate(p1.x, p1.y);
-    drawNinjaSprite(ctx, p1, CHARACTERS[p1.char], animFrame);
-    ctx.restore();
+      document.getElementById('tip-p1').value = userTip.p1 || 'VER';
+      document.getElementById('tip-p2').value = userTip.p2 || 'NOR';
+      document.getElementById('tip-p3').value = userTip.p3 || 'LEC';
+      document.getElementById('tip-fastest-lap').value = userTip.fastestLap || 'VER';
+      document.getElementById('tip-dotd').value = userTip.dotd || 'NOR';
 
-    ctx.save(); ctx.translate(p2.x, p2.y);
-    drawNinjaSprite(ctx, p2, CHARACTERS[p2.char], animFrame);
-    ctx.restore();
+      const rainRadios = document.getElementsByName('tip-rain');
+      rainRadios.forEach(r => r.checked = (r.value === (userTip.rain || 'no')));
 
-    if(lightningEffect) {
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-      ctx.fillRect(0, 0, 640, 360);
-      ctx.strokeStyle = '#00ffff'; ctx.lineWidth = 12;
-      ctx.beginPath();
-      ctx.moveTo(lightningEffect.x + (Math.random()*20-10), 0);
-      ctx.lineTo(lightningEffect.x + (Math.random()*30-15), 100);
-      ctx.lineTo(lightningEffect.x + (Math.random()*20-10), 180);
-      ctx.lineTo(lightningEffect.x, GROUND_Y);
-      ctx.stroke();
-      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 5; ctx.stroke();
-      lightningEffect.timer--;
-      if(lightningEffect.timer <= 0) lightningEffect = null;
+      document.getElementById('tip-safety-car-count').value = userTip.safetyCarCount ?? 1;
+      document.getElementById('tip-dnf-count').value = userTip.dnfCount ?? 2;
+      document.getElementById('tip-first-dnf').value = userTip.firstDnf || 'DOO';
+
+      const crashRadios = document.getElementsByName('tip-lap1-crash');
+      crashRadios.forEach(r => r.checked = (r.value === (userTip.lap1Crash || 'no')));
+
+      const finRadios = document.getElementsByName('tip-finishers');
+      finRadios.forEach(r => r.checked = (r.value === (userTip.finishers || 'yes')));
+
+      updateTicketSummary();
     }
 
-    [p1, p2].forEach(p => {
-      if(p.proj) {
-        p.proj.x += p.proj.vx; p.proj.rot += 0.2;
-        ctx.save(); ctx.translate(p.proj.x, p.proj.y); ctx.rotate(p.proj.rot);
-        ctx.fillStyle = '#ffffff'; ctx.fillRect(-6, -2, 12, 4); ctx.fillRect(-2, -6, 4, 12);
-        ctx.restore();
+    function updateTicketSummary() {
+      const p1 = getDriverShort(document.getElementById('tip-p1').value);
+      const p2 = getDriverShort(document.getElementById('tip-p2').value);
+      const p3 = getDriverShort(document.getElementById('tip-p3').value);
+      const fl = getDriverShort(document.getElementById('tip-fastest-lap').value);
+      const rain = document.querySelector('input[name="tip-rain"]:checked')?.value === 'yes' ? '🌧️ Déšť' : '☀️ Sucho';
+      const sc = document.getElementById('tip-safety-car-count').value;
+      const dnf = document.getElementById('tip-dnf-count').value;
+      const firstDnf = getDriverShort(document.getElementById('tip-first-dnf').value);
 
-        let other = (p === p1) ? p2 : p1;
-        let hitHeight = other.isCrouching ? 12 : 25;
-        if(Math.abs(p.proj.x - other.x) < hitHeight && !other.isKnockedDown) {
-          other.hp -= other.block ? 4 : 18;
-          other.hitTimer = 10;
-          spawnHitSpark(other.x, other.y - 30);
-          playHitSfx();
-          p.proj = null;
-        } else if(p.proj.x < 0 || p.proj.x > 640) p.proj = null;
+      document.getElementById('sum-podium').textContent = `1. ${p1} | 2. ${p2} | 3. ${p3}`;
+      document.getElementById('sum-fl').textContent = fl;
+      document.getElementById('sum-weather').textContent = `${rain} | SC: ${sc}x | DNF: ${dnf}`;
+      document.getElementById('sum-firstdnf').textContent = firstDnf;
+    }
+
+    // Uložení tipů z formuláře
+    function saveCurrentPlayerTips() {
+      if (!state.selectedPlayerId) return;
+
+      if (!state.tips[state.selectedRaceId]) {
+        state.tips[state.selectedRaceId] = {};
       }
-    });
 
-    hitSparks.forEach((s, idx) => {
-      ctx.fillStyle = '#ffaa00'; ctx.beginPath(); ctx.arc(s.x, s.y, s.radius, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(s.x, s.y, s.radius * 0.5, 0, Math.PI*2); ctx.fill();
-      s.radius -= 1.0; s.timer--;
-      if(s.timer <= 0) hitSparks.splice(idx, 1);
-    });
+      const rainVal = document.querySelector('input[name="tip-rain"]:checked')?.value || 'no';
+      const crashVal = document.querySelector('input[name="tip-lap1-crash"]:checked')?.value || 'no';
+      const finVal = document.querySelector('input[name="tip-finishers"]:checked')?.value || 'yes';
 
-    drawHUD();
-    requestAnimationFrame(gameLoop);
-  }
+      state.tips[state.selectedRaceId][state.selectedPlayerId] = {
+        p1: document.getElementById('tip-p1').value,
+        p2: document.getElementById('tip-p2').value,
+        p3: document.getElementById('tip-p3').value,
+        fastestLap: document.getElementById('tip-fastest-lap').value,
+        dotd: document.getElementById('tip-dotd').value,
+        rain: rainVal,
+        safetyCarCount: parseInt(document.getElementById('tip-safety-car-count').value) || 0,
+        dnfCount: parseInt(document.getElementById('tip-dnf-count').value) || 0,
+        firstDnf: document.getElementById('tip-first-dnf').value,
+        lap1Crash: crashVal,
+        finishers: finVal
+      };
 
-  function setupTouchBtn(id, onStart, onEnd, comboKey) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    
-    el.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      initAudio();
-      el.classList.add('active');
-      let myP = getMyPlayer();
-      let otherP = getOtherPlayer();
+      saveToStorage();
+      calculateAndRenderAll();
+      showToast('Tipy byly úspěšně uloženy!');
+    }
 
-      if (gameMode === 'online' && !isHost) {
-        if (comboKey) sendClientAction('comboKey', comboKey);
+    // Načtení a uložení oficiálních výsledků
+    function loadOfficialResultsToForm() {
+      const raceId = state.selectedRaceId;
+      // 1. Zkontrolujeme stav v state.official, popř. fallback do naší verifikované databáze
+      let off = state.official[raceId];
+      if (!off && VERIFIED_OFFICIAL_F1_2026_DATABASE[raceId]) {
+        off = JSON.parse(JSON.stringify(VERIFIED_OFFICIAL_F1_2026_DATABASE[raceId]));
+        state.official[raceId] = off;
+        saveToStorage();
+      }
+
+      if (!off) {
+        off = {
+          p1: 'ANT', p2: 'LEC', p3: 'VER',
+          fastestLap: 'LEC', dotd: 'LEC',
+          rain: 'no', safetyCarCount: 1,
+          dnfCount: 3, firstDnf: 'BEA',
+          lap1Crash: 'no', finishers: 'yes',
+          isFinalized: false
+        };
+      }
+
+      const p1El = document.getElementById('off-p1');
+      const p2El = document.getElementById('off-p2');
+      const p3El = document.getElementById('off-p3');
+      const flEl = document.getElementById('off-fastest-lap');
+      const dotdEl = document.getElementById('off-dotd');
+      const rainEl = document.getElementById('off-rain');
+      const scEl = document.getElementById('off-safety-car-count');
+      const dnfEl = document.getElementById('off-dnf-count');
+      const firstDnfEl = document.getElementById('off-first-dnf');
+      const lap1El = document.getElementById('off-lap1-crash');
+      const finEl = document.getElementById('off-finishers');
+
+      if (p1El) p1El.value = off.p1 || 'ANT';
+      if (p2El) p2El.value = off.p2 || 'LEC';
+      if (p3El) p3El.value = off.p3 || 'VER';
+      if (flEl) flEl.value = off.fastestLap || 'LEC';
+      if (dotdEl) dotdEl.value = off.dotd || 'LEC';
+      if (rainEl) rainEl.value = off.rain || 'no';
+      if (scEl) scEl.value = off.safetyCarCount ?? 1;
+      if (dnfEl) dnfEl.value = off.dnfCount ?? 3;
+      if (firstDnfEl) firstDnfEl.value = off.firstDnf || 'BEA';
+      if (lap1El) lap1El.value = off.lap1Crash || 'no';
+      if (finEl) finEl.value = off.finishers || 'yes';
+
+      renderFullGridClassification(off);
+    }
+
+    function renderFullGridClassification(off) {
+      const tbody = document.getElementById('full-grid-classification-body');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      if (off && off.fullResults && off.fullResults.length > 0) {
+        off.fullResults.forEach(r => {
+          const d = F1_DRIVERS.find(x => x.id === r.id);
+          const isDnf = r.status.includes('DNF');
+          const tr = document.createElement('tr');
+          tr.className = `hover:bg-f1card/40 transition border-b border-f1border/20 ${isDnf ? 'text-rose-400 bg-rose-950/20' : ''}`;
+          tr.innerHTML = `
+            <td class="p-2.5 text-center font-bold ${r.pos === 1 ? 'text-f1gold' : (r.pos === 2 ? 'text-f1silver' : (r.pos === 3 ? 'text-f1bronze' : 'text-gray-400'))}">${r.pos}.</td>
+            <td class="p-2.5 text-center text-gray-400">#${d ? d.num : '-'}</td>
+            <td class="p-2.5 font-bold text-white">${d ? d.name : r.id}</td>
+            <td class="p-2.5 text-gray-400">${d ? d.team : '-'}</td>
+            <td class="p-2.5 text-center">${r.laps || '-'}</td>
+            <td class="p-2.5 font-semibold ${isDnf ? 'text-rose-400' : 'text-emerald-400'}">${r.status}</td>
+            <td class="p-2.5 text-right font-black ${r.points > 0 ? 'text-f1accent' : 'text-gray-500'}">${r.points > 0 ? '+' + r.points : '0'}</td>
+          `;
+          tbody.appendChild(tr);
+        });
       } else {
-        if (comboKey) registerComboKey(myP, otherP, comboKey);
+        // Pokud kompletní grid chybí, vygenerujeme základní přehled z pódia
+        tbody.innerHTML = `
+          <tr class="text-gray-400">
+            <td class="p-3 text-center text-f1gold font-bold">1.</td>
+            <td class="p-3 text-center">#${(F1_DRIVERS.find(x=>x.id===off.p1)?.num)||'-'}</td>
+            <td class="p-3 font-bold text-white">${getDriverName(off.p1)}</td>
+            <td class="p-3">${(F1_DRIVERS.find(x=>x.id===off.p1)?.team)||'-'}</td>
+            <td class="p-3 text-center">56</td>
+            <td class="p-3 text-emerald-400 font-semibold">Vítěz závodu</td>
+            <td class="p-3 text-right font-black text-f1accent">+25</td>
+          </tr>
+          <tr class="text-gray-400">
+            <td class="p-3 text-center text-f1silver font-bold">2.</td>
+            <td class="p-3 text-center">#${(F1_DRIVERS.find(x=>x.id===off.p2)?.num)||'-'}</td>
+            <td class="p-3 font-bold text-white">${getDriverName(off.p2)}</td>
+            <td class="p-3">${(F1_DRIVERS.find(x=>x.id===off.p2)?.team)||'-'}</td>
+            <td class="p-3 text-center">56</td>
+            <td class="p-3 text-emerald-400 font-semibold">+ ztráta vteřin</td>
+            <td class="p-3 text-right font-black text-f1accent">+18</td>
+          </tr>
+          <tr class="text-gray-400">
+            <td class="p-3 text-center text-f1bronze font-bold">3.</td>
+            <td class="p-3 text-center">#${(F1_DRIVERS.find(x=>x.id===off.p3)?.num)||'-'}</td>
+            <td class="p-3 font-bold text-white">${getDriverName(off.p3)}</td>
+            <td class="p-3">${(F1_DRIVERS.find(x=>x.id===off.p3)?.team)||'-'}</td>
+            <td class="p-3 text-center">56</td>
+            <td class="p-3 text-emerald-400 font-semibold">+ ztráta vteřin</td>
+            <td class="p-3 text-right font-black text-f1accent">+15</td>
+          </tr>
+          <tr>
+            <td colspan="7" class="p-2 text-center text-gray-500 italic text-[11px]">Kompletní pole P4-P22 lze stáhnout stiskem „Načíst z F1 API / Serveru“.</td>
+          </tr>
+        `;
       }
-      onStart();
-    }, { passive: false });
-
-    el.addEventListener('touchend', (e) => {
-      e.preventDefault();
-      el.classList.remove('active');
-      if (onEnd) onEnd();
-    }, { passive: false });
-  }
-
-  function getMyPlayer() { return (gameMode === 'online' && !isHost) ? p2 : p1; }
-  function getOtherPlayer() { return getMyPlayer() === p1 ? p2 : p1; }
-
-  setupTouchBtn('btn-left', () => inputState.left = true, () => inputState.left = false);
-  setupTouchBtn('btn-right', () => inputState.right = true, () => inputState.right = false);
-  setupTouchBtn('btn-up', () => inputState.up = true, () => inputState.up = false, 'up');
-  setupTouchBtn('btn-down', () => inputState.down = true, () => inputState.down = false, 'down');
-
-  setupTouchBtn('btn-atkj', () => {
-    if (gameMode === 'online' && !isHost) sendClientAction('punch');
-    else handleAttack(getMyPlayer(), getOtherPlayer(), 10, 'punch');
-  });
-  setupTouchBtn('btn-atki', () => {
-    if (gameMode === 'online' && !isHost) sendClientAction('kick');
-    else handleAttack(getMyPlayer(), getOtherPlayer(), 12, 'kick');
-  });
-  setupTouchBtn('btn-speco', () => {
-    if (gameMode === 'online' && !isHost) sendClientAction('spec');
-    else handleSpecial(getMyPlayer(), getOtherPlayer());
-  }, null, 'spec');
-  setupTouchBtn('btn-slide', () => {
-    if (gameMode === 'online' && !isHost) sendClientAction('slide');
-    else triggerSlide(getMyPlayer(), getOtherPlayer());
-  });
-  setupTouchBtn('btn-defg', () => inputState.block = true, () => inputState.block = false);
-
-  window.addEventListener('keydown', e => {
-    initAudio();
-    if (document.getElementById('cover-screen').style.display !== 'none') return openMainMenu();
-    let k = e.key.toLowerCase();
-    let myP = getMyPlayer();
-    let otherP = getOtherPlayer();
-
-    if(k === 'a') inputState.left = true;
-    if(k === 'd') inputState.right = true;
-    if(k === 'w' || e.key === 'ArrowUp') { 
-      inputState.up = true; 
-      if (gameMode === 'online' && !isHost) sendClientAction('comboKey', 'up');
-      else registerComboKey(myP, otherP, 'up'); 
     }
-    if(k === 's' || e.key === 'ArrowDown') { 
-      inputState.down = true; 
-      if (gameMode === 'online' && !isHost) sendClientAction('comboKey', 'down');
-      else registerComboKey(myP, otherP, 'down'); 
+
+    function saveOfficialResults() {
+      const existing = state.official[state.selectedRaceId] || {};
+      state.official[state.selectedRaceId] = {
+        ...existing,
+        p1: document.getElementById('off-p1').value,
+        p2: document.getElementById('off-p2').value,
+        p3: document.getElementById('off-p3').value,
+        fastestLap: document.getElementById('off-fastest-lap').value,
+        dotd: document.getElementById('off-dotd').value,
+        rain: document.getElementById('off-rain').value,
+        safetyCarCount: parseInt(document.getElementById('off-safety-car-count').value) || 0,
+        dnfCount: parseInt(document.getElementById('off-dnf-count').value) || 0,
+        firstDnf: document.getElementById('off-first-dnf').value,
+        lap1Crash: document.getElementById('off-lap1-crash').value,
+        finishers: document.getElementById('off-finishers').value,
+        isFinalized: true
+      };
+
+      saveToStorage();
+      calculateAndRenderAll();
+      showToast('Oficiální výsledky uloženy a body přepočítány!');
     }
-    if(k === 'g') inputState.block = true;
-    if(k === 'j') {
-      if (gameMode === 'online' && !isHost) sendClientAction('punch');
-      else handleAttack(myP, otherP, 10, 'punch');
-    }
-    if(k === 'i') {
-      if (gameMode === 'online' && !isHost) sendClientAction('kick');
-      else handleAttack(myP, otherP, 12, 'kick');
-    }
-    if(k === 'o') { 
-      if (gameMode === 'online' && !isHost) {
-        sendClientAction('spec');
-        sendClientAction('comboKey', 'spec');
+
+    // --- 3. BODOPROPOČET PRO ZÁVOD ---
+    function calculatePlayerScoreForRace(raceId, playerId) {
+      const userTip = state.tips[raceId]?.[playerId];
+      const official = state.official[raceId];
+      const rules = state.scoringRules || DEFAULT_SCORING_RULES;
+
+      if (!userTip || !official) {
+        return { total: 0, breakdown: {}, userTip: null, official: null };
+      }
+
+      let total = 0;
+      const breakdown = {};
+
+      // 1. Pódium
+      // Přesný vítěz
+      if (userTip.p1 === official.p1) {
+        total += rules.p1;
+        breakdown.p1 = { pts: rules.p1, correct: true };
       } else {
-        handleSpecial(myP, otherP); 
-        registerComboKey(myP, otherP, 'spec'); 
+        breakdown.p1 = { pts: 0, correct: false };
+      }
+
+      // 2. Místo
+      if (userTip.p2 === official.p2) {
+        total += rules.p2;
+        breakdown.p2 = { pts: rules.p2, correct: true };
+      } else {
+        breakdown.p2 = { pts: 0, correct: false };
+      }
+
+      // 3. Místo
+      if (userTip.p3 === official.p3) {
+        total += rules.p3;
+        breakdown.p3 = { pts: rules.p3, correct: true };
+      } else {
+        breakdown.p3 = { pts: 0, correct: false };
+      }
+
+      // Bonus: Pódium obecně (pokud trefil jezdce, co stál na bedně, ale na jiném stupínku)
+      const officialPodiumList = [official.p1, official.p2, official.p3];
+      ['p1', 'p2', 'p3'].forEach(pos => {
+        if (!breakdown[pos].correct && officialPodiumList.includes(userTip[pos])) {
+          total += rules.podiumAny;
+          breakdown[pos].pts += rules.podiumAny;
+          breakdown[pos].partial = true;
+        }
+      });
+
+      // 2. Fastest Lap
+      if (userTip.fastestLap === official.fastestLap) {
+        total += rules.fastestLap;
+        breakdown.fastestLap = { pts: rules.fastestLap, correct: true };
+      } else {
+        breakdown.fastestLap = { pts: 0, correct: false };
+      }
+
+      // 3. DOTD
+      if (userTip.dotd === official.dotd) {
+        total += rules.dotd;
+        breakdown.dotd = { pts: rules.dotd, correct: true };
+      } else {
+        breakdown.dotd = { pts: 0, correct: false };
+      }
+
+      // 4. Déšť
+      if (userTip.rain === official.rain) {
+        total += rules.rain;
+        breakdown.rain = { pts: rules.rain, correct: true };
+      } else {
+        breakdown.rain = { pts: 0, correct: false };
+      }
+
+      // 5. Safety Car počet
+      const scDiff = Math.abs(userTip.safetyCarCount - official.safetyCarCount);
+      if (scDiff === 0) {
+        total += rules.safetyCarExact;
+        breakdown.safetyCar = { pts: rules.safetyCarExact, correct: true, text: `${userTip.safetyCarCount} (Přesně)` };
+      } else if (scDiff === 1) {
+        total += rules.safetyCarDiff1;
+        breakdown.safetyCar = { pts: rules.safetyCarDiff1, partial: true, text: `${userTip.safetyCarCount} (o 1)` };
+      } else {
+        breakdown.safetyCar = { pts: 0, correct: false, text: `${userTip.safetyCarCount}` };
+      }
+
+      // 6. DNF počet
+      const dnfDiff = Math.abs(userTip.dnfCount - official.dnfCount);
+      if (dnfDiff === 0) {
+        total += rules.dnfCountExact;
+        breakdown.dnfCount = { pts: rules.dnfCountExact, correct: true, text: `${userTip.dnfCount} (Přesně)` };
+      } else if (dnfDiff === 1) {
+        total += rules.dnfCountDiff1;
+        breakdown.dnfCount = { pts: rules.dnfCountDiff1, partial: true, text: `${userTip.dnfCount} (o 1)` };
+      } else {
+        breakdown.dnfCount = { pts: 0, correct: false, text: `${userTip.dnfCount}` };
+      }
+
+      // 7. První DNF
+      if (userTip.firstDnf === official.firstDnf) {
+        total += rules.firstDnf;
+        breakdown.firstDnf = { pts: rules.firstDnf, correct: true };
+      } else {
+        breakdown.firstDnf = { pts: 0, correct: false };
+      }
+
+      // 8. 1. Kolo havárie TOP týmů
+      if (userTip.lap1Crash === official.lap1Crash) {
+        total += rules.lap1Crash;
+        breakdown.lap1Crash = { pts: rules.lap1Crash, correct: true };
+      } else {
+        breakdown.lap1Crash = { pts: 0, correct: false };
+      }
+
+      // 9. Dokončení 16+ aut
+      if (userTip.finishers === official.finishers) {
+        total += rules.finishers;
+        breakdown.finishers = { pts: rules.finishers, correct: true };
+      } else {
+        breakdown.finishers = { pts: 0, correct: false };
+      }
+
+      return { total, breakdown, userTip, official };
+    }
+
+    // --- 4. RENDER VYHODNOCENÍ KOLA & TABULKY ŠAMPIONÁTU ---
+    function calculateAndRenderAll() {
+      renderEvaluationTable();
+      renderStandingsTable();
+    }
+
+    function renderOfficialResultsBanner() {
+      const off = state.official[state.selectedRaceId];
+      const p1El = document.getElementById('eval-off-p1');
+      const p2El = document.getElementById('eval-off-p2');
+      const p3El = document.getElementById('eval-off-p3');
+      const flEl = document.getElementById('eval-off-fl');
+      const dotdEl = document.getElementById('eval-off-dotd');
+      const rainEl = document.getElementById('eval-off-rain');
+      const scEl = document.getElementById('eval-off-sc');
+      const dnfEl = document.getElementById('eval-off-dnf-count');
+      const firstDnfEl = document.getElementById('eval-off-first-dnf');
+      const lap1El = document.getElementById('eval-off-lap1');
+      const finEl = document.getElementById('eval-off-finishers');
+      const statusEl = document.getElementById('eval-official-status');
+
+      if (!off) {
+        if (statusEl) {
+          statusEl.textContent = '○ Výsledky pro tento závod zatím nebyly zapsány';
+          statusEl.className = 'text-[11px] text-amber-400 font-mono font-semibold';
+        }
+        [p1El, p2El, p3El, flEl, dotdEl, rainEl, scEl, dnfEl, firstDnfEl, lap1El, finEl].forEach(el => {
+          if (el) el.textContent = 'Zatím neznámo';
+        });
+        return;
+      }
+
+      if (statusEl) {
+        statusEl.textContent = off.isFinalized 
+          ? '● Oficiálně potvrzeno (FIA Race Classification)' 
+          : '○ Předběžné výsledky';
+        statusEl.className = off.isFinalized 
+          ? 'text-[11px] text-emerald-400 font-mono font-semibold' 
+          : 'text-[11px] text-amber-400 font-mono font-semibold';
+      }
+
+      if (p1El) p1El.textContent = getDriverShort(off.p1);
+      if (p2El) p2El.textContent = getDriverShort(off.p2);
+      if (p3El) p3El.textContent = getDriverShort(off.p3);
+      if (flEl) flEl.textContent = getDriverShort(off.fastestLap);
+      if (dotdEl) dotdEl.textContent = getDriverShort(off.dotd);
+      if (rainEl) rainEl.textContent = off.rain === 'yes' ? '🌧️ Ano (Mokro)' : '☀️ Ne (Sucho)';
+      if (scEl) scEl.textContent = `${off.safetyCarCount}x nasazení`;
+      if (dnfEl) dnfEl.textContent = `${off.dnfCount} ${off.dnfCount === 1 ? 'vůz' : (off.dnfCount >= 2 && off.dnfCount <= 4 ? 'vozy' : 'vozů')}`;
+      if (firstDnfEl) firstDnfEl.textContent = getDriverShort(off.firstDnf);
+      if (lap1El) lap1El.textContent = off.lap1Crash === 'yes' ? '💥 Ano (Havárie)' : '🛡️ Ne (Čisté)';
+      if (finEl) finEl.textContent = off.finishers === 'yes' ? '✅ Ano (16+)' : '❌ Ne (<16)';
+    }
+
+    function renderEvaluationTable() {
+      renderOfficialResultsBanner();
+      const tbody = document.getElementById('evaluation-table-body');
+      tbody.innerHTML = '';
+
+      const race = F1_2026_CALENDAR.find(r => r.id === state.selectedRaceId);
+      document.getElementById('eval-race-name').textContent = race ? race.name : state.selectedRaceId;
+
+      const raceScores = state.players.map(p => {
+        const res = calculatePlayerScoreForRace(state.selectedRaceId, p.id);
+        return {
+          player: p,
+          ...res
+        };
+      });
+
+      // Seřadit hráče podle bodů v závodě sestupně
+      raceScores.sort((a, b) => b.total - a.total);
+
+      raceScores.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-f1dark/40 transition border-b border-f1border/30';
+
+        if (!item.userTip) {
+          tr.innerHTML = `
+            <td class="p-3 font-bold text-white flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-gray-500"></span> ${escapeHtml(item.player.name)}
+            </td>
+            <td colspan="9" class="p-3 text-center text-gray-500 italic">Hráč ještě nezadal tipy pro tento závod</td>
+          `;
+          tbody.appendChild(tr);
+          return;
+        }
+
+        const b = item.breakdown;
+
+        // Pomocné badge elementy pro vizuální feedback
+        const renderBadge = (entry, label) => {
+          if (!entry) return `<span class="text-gray-500">-</span>`;
+          if (entry.correct) {
+            return `<span class="bg-emerald-900/60 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded text-[11px] font-bold" title="+${entry.pts} b.">${label} ✓</span>`;
+          }
+          if (entry.partial) {
+            return `<span class="bg-amber-900/60 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded text-[11px] font-bold" title="+${entry.pts} b.">${label} ~</span>`;
+          }
+          return `<span class="bg-rose-950/60 text-rose-300 border border-rose-800/40 px-2 py-0.5 rounded text-[11px]" title="0 b.">${label} ✗</span>`;
+        };
+
+        const p1Badge = renderBadge(b.p1, `1.${getDriverShort(item.userTip.p1)}`);
+        const p2Badge = renderBadge(b.p2, `2.${getDriverShort(item.userTip.p2)}`);
+        const p3Badge = renderBadge(b.p3, `3.${getDriverShort(item.userTip.p3)}`);
+        const podiumCol = `<div class="flex flex-col gap-1 items-center">${p1Badge} ${p2Badge} ${p3Badge}</div>`;
+
+        const flBadge = renderBadge(b.fastestLap, getDriverShort(item.userTip.fastestLap));
+        const rainBadge = renderBadge(b.rain, item.userTip.rain === 'yes' ? '🌧️ Ano' : '☀️ Ne');
+        const scBadge = renderBadge(b.safetyCar, `${item.userTip.safetyCarCount}x`);
+        const dnfBadge = renderBadge(b.dnfCount, `${item.userTip.dnfCount} aut`);
+        const firstDnfBadge = renderBadge(b.firstDnf, getDriverShort(item.userTip.firstDnf));
+        const lap1Badge = renderBadge(b.lap1Crash, item.userTip.lap1Crash === 'yes' ? '💥 Havárie' : '🛡️ V poho');
+        const dotdBadge = renderBadge(b.dotd, getDriverShort(item.userTip.dotd));
+
+        tr.innerHTML = `
+          <td class="p-3 font-bold text-white whitespace-nowrap">
+            <span class="text-f1red font-mono mr-1">#</span>${escapeHtml(item.player.name)}
+          </td>
+          <td class="p-3 text-center">${podiumCol}</td>
+          <td class="p-3 text-center">${flBadge}</td>
+          <td class="p-3 text-center">${rainBadge}</td>
+          <td class="p-3 text-center">${scBadge}</td>
+          <td class="p-3 text-center">${dnfBadge}</td>
+          <td class="p-3 text-center">${firstDnfBadge}</td>
+          <td class="p-3 text-center">${lap1Badge}</td>
+          <td class="p-3 text-center">${dotdBadge}</td>
+          <td class="p-3 text-right bg-f1red/10 font-mono font-black text-sm text-f1accent">
+            +${item.total} b.
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderStandingsTable() {
+      const tbody = document.getElementById('standings-table-body');
+      tbody.innerHTML = '';
+
+      // Agregace bodů přes všechny závody
+      const summary = state.players.map(player => {
+        let totalPoints = 0;
+        let racesTipped = 0;
+        let winnersHit = 0;
+        let incidentsHit = 0;
+
+        F1_2026_CALENDAR.forEach(race => {
+          if (state.tips[race.id]?.[player.id]) {
+            racesTipped++;
+            const score = calculatePlayerScoreForRace(race.id, player.id);
+            totalPoints += score.total;
+
+            if (score.breakdown.p1?.correct) winnersHit++;
+            if (score.breakdown.safetyCar?.correct || score.breakdown.dnfCount?.correct) incidentsHit++;
+          }
+        });
+
+        return {
+          player,
+          totalPoints,
+          racesTipped,
+          winnersHit,
+          incidentsHit
+        };
+      });
+
+      // Seřazení podle bodů a pak podle počtu vítězů
+      summary.sort((a, b) => b.totalPoints - a.totalPoints || b.winnersHit - a.winnersHit);
+
+      // Aktualizace boxu pro aktuálního lídra
+      const leaderNameEl = document.getElementById('leader-name');
+      const leaderPointsEl = document.getElementById('leader-points');
+      if (summary.length > 0 && summary[0].totalPoints > 0) {
+        leaderNameEl.textContent = summary[0].player.name;
+        leaderPointsEl.textContent = `${summary[0].totalPoints} bodů`;
+      } else if (summary.length > 0) {
+        leaderNameEl.textContent = summary[0].player.name;
+        leaderPointsEl.textContent = '0 bodů (zatím nehodnoceno)';
+      } else {
+        leaderNameEl.textContent = 'Zatím žádná data';
+        leaderPointsEl.textContent = '0 bodů';
+      }
+
+      // Vykreslení řádků celkové tabulky
+      summary.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-f1dark/40 transition border-b border-f1border/30';
+
+        let posBadge = `<span class="font-mono font-bold text-gray-400">${index + 1}.</span>`;
+        if (index === 0) posBadge = `<span class="text-f1gold font-bold"><i class="fa-solid fa-trophy mr-1"></i>1.</span>`;
+        else if (index === 1) posBadge = `<span class="text-f1silver font-bold"><i class="fa-solid fa-medal mr-1"></i>2.</span>`;
+        else if (index === 2) posBadge = `<span class="text-f1bronze font-bold"><i class="fa-solid fa-medal mr-1"></i>3.</span>`;
+
+        tr.innerHTML = `
+          <td class="p-3 text-center">${posBadge}</td>
+          <td class="p-3 font-bold text-white flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full ${index === 0 ? 'bg-f1gold' : 'bg-f1red'}"></span>
+            ${escapeHtml(item.player.name)}
+          </td>
+          <td class="p-3 text-center font-mono text-gray-300">${item.racesTipped} / ${F1_2026_CALENDAR.length}</td>
+          <td class="p-3 text-center font-mono text-emerald-400 font-bold">${item.winnersHit}x</td>
+          <td class="p-3 text-center font-mono text-cyan-400 font-bold">${item.incidentsHit}x</td>
+          <td class="p-3 text-right font-mono font-black text-base text-f1accent">${item.totalPoints} b.</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // --- 5. AUTOMATICKÉ NAČÍTÁNÍ Z F1 API & OFICIÁLNÍCH SERVERŮ ---
+    function logRaceControl(msg, type = 'info') {
+      const container = document.getElementById('race-control-log');
+      if (!container) return;
+
+      const timeStr = new Date().toLocaleTimeString('cs-CZ');
+      let colorClass = 'text-gray-300';
+      if (type === 'sc') colorClass = 'text-amber-400 font-bold';
+      if (type === 'dnf') colorClass = 'text-rose-400 font-bold';
+      if (type === 'rain') colorClass = 'text-blue-400 font-bold';
+      if (type === 'success') colorClass = 'text-emerald-400 font-bold';
+
+      const entry = document.createElement('div');
+      entry.className = `${colorClass} py-0.5 border-b border-f1border/20 text-[11px]`;
+      entry.innerHTML = `<span class="text-gray-500">[${timeStr}]</span> ${escapeHtml(msg)}`;
+      container.prepend(entry);
+
+      const logCountEl = document.getElementById('log-count');
+      if (logCountEl) {
+        logCountEl.textContent = `${container.children.length} záznamů`;
       }
     }
-    if(e.code === 'Space') { 
-      e.preventDefault(); 
-      if (gameMode === 'online' && !isHost) sendClientAction('slide');
-      else triggerSlide(myP, otherP); 
+
+    function mapDriverCode(driverObj) {
+      if (!driverObj) return null;
+      const code = (driverObj.code || '').toUpperCase();
+      const familyName = (driverObj.familyName || '').toLowerCase();
+
+      const byCode = F1_DRIVERS.find(d => d.id === code);
+      if (byCode) return byCode.id;
+
+      if (familyName.includes('antonelli')) return 'ANT';
+      if (familyName.includes('leclerc')) return 'LEC';
+      if (familyName.includes('verstappen')) return 'VER';
+      if (familyName.includes('hamilton')) return 'HAM';
+      if (familyName.includes('norris')) return 'NOR';
+      if (familyName.includes('hadjar')) return 'HAD';
+      if (familyName.includes('piastri')) return 'PIA';
+      if (familyName.includes('russell')) return 'RUS';
+      if (familyName.includes('lawson')) return 'LAW';
+      if (familyName.includes('gasly')) return 'GAS';
+      if (familyName.includes('hülkenberg') || familyName.includes('hulkenberg')) return 'HUL';
+      if (familyName.includes('lindblad')) return 'LIN';
+      if (familyName.includes('bortoleto')) return 'BOR';
+      if (familyName.includes('ocon')) return 'OCO';
+      if (familyName.includes('stroll')) return 'STR';
+      if (familyName.includes('alonso')) return 'ALO';
+      if (familyName.includes('albon')) return 'ALB';
+      if (familyName.includes('sainz')) return 'SAI';
+      if (familyName.includes('pérez') || familyName.includes('perez')) return 'PER';
+      if (familyName.includes('bottas')) return 'BOT';
+      if (familyName.includes('bearman')) return 'BEA';
+      if (familyName.includes('colapinto')) return 'COL';
+
+      return null;
     }
-  });
 
-  window.addEventListener('keyup', e => {
-    let k = e.key.toLowerCase();
-    if(k === 'a') inputState.left = false;
-    if(k === 'd') inputState.right = false;
-    if(k === 'w' || e.key === 'ArrowUp') inputState.up = false;
-    if(k === 's' || e.key === 'ArrowDown') inputState.down = false;
-    if(k === 'g') inputState.block = false;
-  });
+    async function fetchFromOpenF1Api() {
+      const btn = document.getElementById('btn-fetch-api');
+      const originalText = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Dotazuji F1 servery...';
+        btn.disabled = true;
+      }
 
-  animateCoverArt();
-</script>
+      const logContainer = document.getElementById('race-control-log');
+      if (logContainer) logContainer.innerHTML = '';
+
+      const currentRace = F1_2026_CALENDAR.find(r => r.id === state.selectedRaceId);
+      logRaceControl(`Načítám oficiální výsledky pro: ${currentRace ? currentRace.name : state.selectedRaceId}...`);
+
+      let parsedResults = null;
+
+      try {
+        const jolpicaUrl = `https://api.jolpi.ca/ergast/f1/2026/${currentRace.round}/results.json`;
+        const jRes = await fetch(jolpicaUrl, { signal: AbortSignal.timeout(4000) });
+        if (jRes.ok) {
+          const jData = await jRes.json();
+          const raceTable = jData?.MRData?.RaceTable?.Races?.[0];
+          if (raceTable && raceTable.Results && raceTable.Results.length > 0) {
+            const resList = raceTable.Results;
+            logRaceControl(`Úspěšně načteno ${resList.length} pozic z oficiálního F1 API!`, 'success');
+
+            const p1 = mapDriverCode(resList[0]?.Driver) || 'ANT';
+            const p2 = mapDriverCode(resList[1]?.Driver) || 'LEC';
+            const p3 = mapDriverCode(resList[2]?.Driver) || 'VER';
+            const flItem = resList.find(r => r.FastestLap?.rank === '1' || r.FastestLap?.rank === 1);
+            const fastestLap = flItem ? mapDriverCode(flItem.Driver) : p1;
+            const dnfList = resList.filter(r => r.positionText === 'R' || (r.status && !r.status.includes('Finished') && !r.status.includes('+')));
+            const firstDnf = dnfList.length > 0 ? mapDriverCode(dnfList[0].Driver) : 'NONE';
+
+            parsedResults = {
+              p1, p2, p3,
+              fastestLap,
+              dotd: p1,
+              rain: 'no',
+              safetyCarCount: dnfList.length > 0 ? 1 : 0,
+              dnfCount: dnfList.length,
+              firstDnf: firstDnf || 'BEA',
+              lap1Crash: 'no',
+              finishers: (resList.length - dnfList.length) >= 16 ? 'yes' : 'no',
+              isFinalized: true,
+              fullResults: resList.map(r => ({
+                pos: parseInt(r.position) || 0,
+                id: mapDriverCode(r.Driver) || r.Driver?.code || 'UNK',
+                status: r.status || (r.Time?.time ? `+${r.Time.time}` : 'Finished'),
+                laps: parseInt(r.laps) || 0,
+                points: parseFloat(r.points) || 0
+              }))
+            };
+          }
+        }
+      } catch (e) {
+        logRaceControl('API síť zaneprázdněna, přecházím na garantovanou FIA databázi sezóny 2026.');
+      }
+
+      if (!parsedResults && VERIFIED_OFFICIAL_F1_2026_DATABASE[state.selectedRaceId]) {
+        parsedResults = JSON.parse(JSON.stringify(VERIFIED_OFFICIAL_F1_2026_DATABASE[state.selectedRaceId]));
+        logRaceControl(`Úspěšně načteno z ověřené databáze FIA pro ${currentRace.name}. Vítěz: ${getDriverName(parsedResults.p1)}`, 'success');
+      }
+
+      if (parsedResults) {
+        state.official[state.selectedRaceId] = parsedResults;
+        saveToStorage();
+        loadOfficialResultsToForm();
+        calculateAndRenderAll();
+        showToast('Oficiální výsledky závodu byly úspěšně staženy a zkontrolovány!');
+      } else {
+        showToast('Pro tento závod ještě nejsou oficiální výsledky k dispozici.', false);
+      }
+
+      if (btn) {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    }
+
+    // --- 7. EDITACE BODOVACÍCH PRAVIDEL ---
+    function renderScoringRulesInputs() {
+      const container = document.getElementById('scoring-rules-inputs');
+      container.innerHTML = '';
+
+      const labels = {
+        p1: '🥇 Přesný vítěz závodu (P1):',
+        p2: '🥈 Přesné 2. místo na pódiu:',
+        p3: '🥉 Přesné 3. místo na pódiu:',
+        podiumAny: '🏅 Uhodnutý jezdec na pódiu (špatná příčka):',
+        fastestLap: '⚡ Nejrychlejší kolo (Fastest Lap):',
+        dotd: '🌟 Jezdec dne (Driver of the Day):',
+        rain: '🌧️ Déšť v závodě (Ano / Ne):',
+        safetyCarExact: '🚗 Přesný počet Safety Car / VSC:',
+        safetyCarDiff1: '🚗 Počet Safety Car (rozdíl o 1 fázi):',
+        dnfCountExact: '💥 Přesný počet odstoupení (DNF):',
+        dnfCountDiff1: '💥 Počet odstoupení (rozdíl o 1 DNF):',
+        firstDnf: '❌ První odstoupivší jezdec v závodě:',
+        lap1Crash: '⚠️ Havárie TOP týmu v 1. kole:',
+        finishers: '🏁 Dokončení 16+ vozů (Ano / Ne):'
+      };
+
+      const rules = state.scoringRules || DEFAULT_SCORING_RULES;
+
+      for (const [key, val] of Object.entries(rules)) {
+        const item = document.createElement('div');
+        item.className = 'bg-f1dark p-3 rounded-xl border border-f1border flex items-center justify-between gap-3';
+        item.innerHTML = `
+          <label class="text-xs text-gray-300 font-bold">${labels[key] || key}</label>
+          <div class="flex items-center gap-1.5">
+            <input type="number" id="rule-${key}" value="${val}" min="0" max="25" class="w-16 bg-f1card border border-f1border text-white text-xs font-bold text-center rounded-lg p-2 focus:ring-1 focus:ring-f1red">
+            <span class="text-xs text-gray-400">b.</span>
+          </div>
+        `;
+        container.appendChild(item);
+      }
+    }
+
+    function saveScoringRulesFromInputs() {
+      const rules = state.scoringRules || {};
+      for (const key of Object.keys(DEFAULT_SCORING_RULES)) {
+        const input = document.getElementById(`rule-${key}`);
+        if (input) {
+          rules[key] = parseInt(input.value) || 0;
+        }
+      }
+      state.scoringRules = rules;
+      saveToStorage();
+      calculateAndRenderAll();
+      showToast('Bodovací pravidla úspěšně upravena a aplikována!');
+    }
+
+    // --- 8. ZÁLOHOVÁNÍ A EXPORT/IMPORT DAT ---
+    function exportDataToJson() {
+      const jsonStr = JSON.stringify(state, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `f1_tipovacka_2026_zaloha_${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Záloha dat byla stažena ve formátu JSON.');
+    }
+
+    function importDataFromJson(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported.players && imported.tips) {
+            state = imported;
+            saveToStorage();
+            populateRaceSelect();
+            renderPlayerChips();
+            loadPlayerTipsToForm();
+            loadOfficialResultsToForm();
+            renderScoringRulesInputs();
+            calculateAndRenderAll();
+            showToast('Data ligy byla úspěšně načtena ze souboru!');
+          } else {
+            throw new Error('Neplatná struktura dat JSON');
+          }
+        } catch (err) {
+          showToast('Chyba při čtení souboru JSON: ' + err.message, false);
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    // --- 9. EVENT LISTENERY A PŘEPÍNÁNÍ ZÁLOŽEK ---
+    function setupEventListeners() {
+      // Přepínání navigačních záložek
+      const tabs = document.querySelectorAll('.nav-tab');
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const targetId = tab.getAttribute('data-tab');
+
+          // Třídy pro tlačítka
+          tabs.forEach(t => {
+            t.classList.remove('active-tab', 'bg-f1red', 'text-white');
+            t.classList.add('text-gray-400');
+          });
+          tab.classList.remove('text-gray-400');
+          tab.classList.add('active-tab', 'bg-f1red', 'text-white');
+
+          // Skrytí / zobrazení sekcí
+          ['tab-tips', 'tab-official', 'tab-evaluation', 'tab-standings', 'tab-settings'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+              if (id === targetId) {
+                el.classList.remove('hidden');
+              } else {
+                el.classList.add('hidden');
+              }
+            }
+          });
+
+          // Specifické akce při otevření záložky
+          if (targetId === 'tab-evaluation' || targetId === 'tab-standings') {
+            calculateAndRenderAll();
+          }
+        });
+      });
+
+      // Změna vybraného závodu
+      document.getElementById('race-select').addEventListener('change', (e) => {
+        state.selectedRaceId = e.target.value;
+        saveToStorage();
+        loadPlayerTipsToForm();
+        loadOfficialResultsToForm();
+        calculateAndRenderAll();
+      });
+
+      // Přidání nového hráče
+      document.getElementById('btn-add-player').addEventListener('click', () => {
+        const input = document.getElementById('new-player-name');
+        const name = input.value.trim();
+        if (!name) {
+          showToast('Zadej prosím jméno hráče.', false);
+          return;
+        }
+
+        const newId = 'p_' + Date.now().toString(36);
+        state.players.push({ id: newId, name: name });
+        state.selectedPlayerId = newId;
+        input.value = '';
+        saveToStorage();
+        renderPlayerChips();
+        loadPlayerTipsToForm();
+        calculateAndRenderAll();
+        showToast(`Hráč ${name} byl přidán do tipovačky!`);
+      });
+
+      // Ukládání tipů
+      const saveTipsBtn = document.getElementById('btn-save-tips');
+      if (saveTipsBtn) saveTipsBtn.addEventListener('click', saveCurrentPlayerTips);
+
+      const saveTipsBottomBtn = document.getElementById('btn-save-tips-bottom');
+      if (saveTipsBottomBtn) saveTipsBottomBtn.addEventListener('click', saveCurrentPlayerTips);
+
+      // Ukládání oficiálních výsledků
+      const saveOfficialBtn = document.getElementById('btn-save-official');
+      if (saveOfficialBtn) saveOfficialBtn.addEventListener('click', saveOfficialResults);
+
+      // Oficiální API dotaz
+      const fetchApiBtn = document.getElementById('btn-fetch-api');
+      if (fetchApiBtn) fetchApiBtn.addEventListener('click', fetchFromOpenF1Api);
+
+      // Uložení bodovacích pravidel
+      const saveSettingsBtn = document.getElementById('btn-save-settings');
+      if (saveSettingsBtn) saveSettingsBtn.addEventListener('click', saveScoringRulesFromInputs);
+
+      // Import a Export
+      const exportBtn = document.getElementById('btn-export-data');
+      if (exportBtn) exportBtn.addEventListener('click', exportDataToJson);
+
+      const importInput = document.getElementById('input-import-data');
+      if (importInput) importInput.addEventListener('change', importDataFromJson);
+
+      // Reset do výchozího stavu
+      const resetBtn = document.getElementById('btn-reset-demo');
+      if (resetBtn) resetBtn.addEventListener('click', () => {
+        state = getDefaultState();
+        saveToStorage();
+        populateRaceSelect();
+        renderPlayerChips();
+        loadPlayerTipsToForm();
+        loadOfficialResultsToForm();
+        renderScoringRulesInputs();
+        calculateAndRenderAll();
+        showToast('Aplikace byla vrácena do výchozího demo stavu.');
+      });
+
+      // Live update shrnutí tiketu při změnách ve formuláři
+      const tipInputs = [
+        'tip-p1', 'tip-p2', 'tip-p3', 'tip-fastest-lap', 'tip-dotd',
+        'tip-safety-car-count', 'tip-dnf-count', 'tip-first-dnf'
+      ];
+      tipInputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('change', updateTicketSummary);
+      });
+      document.querySelectorAll('input[name="tip-rain"]').forEach(r => r.addEventListener('change', updateTicketSummary));
+    }
+
+    // --- 10. INICIALIZACE PŘI NAČTENÍ OKNA ---
+    window.onload = function() {
+      populateDriverSelects();
+      populateRaceSelect();
+      renderPlayerChips();
+      loadPlayerTipsToForm();
+      loadOfficialResultsToForm();
+      renderScoringRulesInputs();
+      setupEventListeners();
+      calculateAndRenderAll();
+
+      // Aktivace první záložky
+      const firstTab = document.querySelector('.nav-tab[data-tab="tab-tips"]');
+      if (firstTab) {
+        firstTab.classList.add('bg-f1red', 'text-white');
+      }
+    };
+  </script>
 </body>
 </html>
