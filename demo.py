@@ -17,10 +17,11 @@ def main():
         now = int(time.time())
         db.execute("INSERT OR REPLACE INTO races(id,name,start) VALUES(?,?,?)",
                    ('demo-open', 'Testovací závod', now + 86400))
-    with make_server('127.0.0.1', 0, league.app) as server:
+    with make_server('127.0.0.1', int(os.environ.get('DEMO_PORT', '0')), league.app) as server:
         url = f'http://127.0.0.1:{server.server_port}/'
         print(f'{url}   Kod party: BOX2026', flush=True)
-        webbrowser.open(url)
+        if not os.environ.get('CODESPACES'):
+            webbrowser.open(url)
         server.serve_forever()
 
 if __name__ == '__main__':
