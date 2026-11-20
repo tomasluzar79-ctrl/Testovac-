@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="cs"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>F1 Tipovačka · Šampionát přátel</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#11141a;color:#edf0f3;font:16px/1.5 system-ui,sans-serif}main{max-width:780px;margin:auto;padding:28px clamp(16px,4vw,32px)}h1{font-size:clamp(30px,7vw,54px);letter-spacing:-.05em;border-bottom:4px solid #ff493f;padding-bottom:12px;margin:0 0 24px}section,details{background:#20242b;padding:18px;border-radius:10px;margin:16px 0}h2{margin:0 0 12px;font-size:21px}label{display:grid;gap:4px;margin:9px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:0 16px}select,input,button{width:100%;padding:10px;border:1px solid #68717e;border-radius:5px;background:#15191f;color:inherit;font:inherit}button{background:#bd2521;font-weight:700;cursor:pointer;margin-top:12px}a{color:#a6d9ff}summary{cursor:pointer}output{display:block;color:#ffd28a}li{margin:6px 0}small{color:#ccd1da}[hidden]{display:none!important}
+</style><main><h1>F1 Tipovačka 2026</h1><output role="status" id="msg"></output>
+<section id="access"><h2>Přidej se k partě</h2><form id="join"><label>Přezdívka<input name="name" required maxlength="32"></label><label>Kód party<input name="invite" type="password" required></label><button>Připojit se</button></form>
+<details><summary>Už mám osobní kód</summary><form id="login"><label>Osobní kód<input name="token" required type="password"></label><button>Přihlásit se</button></form></details></section>
+<p id="identity"></p><p id="recovery" hidden></p>
+<section><label>Velká cena<select id="race"></select></label><p id="deadline"></p><a id="source" hidden>Výsledky na Formula1.com</a></section>
+<section><h2>Můj tiket</h2><form id="tip"><div class="grid" id="choices"></div><button id="save">Uložit tip</button></form></section>
+<section><h2>Pořadí party</h2><ol id="board"></ol></section>
+<details id="admin" hidden><summary>Potvrdit bonusové výsledky</summary><form id="bonus"><label>Kód správce<input name="key" type="password" required></label><div class="grid" id="bonuses"></div><button>Uložit bonusy</button></form></details>
+</main><script>
+const el=id=>document.getElementById(id);
+async function api(path,data){
+  const response=await fetch('/api/'+path,data?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}:{});
+  const json=await response.json();
+  if(!response.ok)throw Error(json.error||'Požadavek se nepodařil.');
+  return json;
+}
+function picker(parent,key,label,options,value,disabled){
+  const wrap=document.createElement('label'), select=document.createElement('select');
+  wrap.textContent=label; select.name=key; select.disabled=disabled;
+  select.add(new Option('—', ''));
+  Object.entries(options).forEach(([code,name])=>select.add(new Option(name,code)));
+  select.value=value||'';wrap.append(select);parent.append(wrap);return wrap;
+}
+let requestId=0;
+async function refresh(){
+  const id=++requestId, race=el('race').value;
+  const s=await api('state?race='+encodeURIComponent(race));
+  if(id!==requestId)return;
+  el('access').hidden=!!s.user;
+  el('identity').textContent=s.user?'Přihlášený hráč · '+s.user:'';
+  el('board').replaceChildren();
+  for(const [name,points] of s.standings){const li=document.createElement('li');li.textContent=name+' · '+points+' b.';el('board').append(li);}
+  el('race').replaceChildren(...s.races.map(r=>new Option(r[1],r[0])));
+  const current=s.races.find(r=>r[0]===race)||s.races.find(r=>r[2]>s.now)||s.races.at(-1);
+  el('tip').hidden=!current;
+  if(!current){el('deadline').textContent='Čeká se na načtení kalendáře.';return;}
+  el('race').value=current[0];
+  if(race!==current[0])return refresh();
+  const closed=s.now>=current[2];
+  el('deadline').textContent=(closed?'Uzavřeno · ':'Uzávěrka · ')+new Date(current[2]*1000).toLocaleString('cs-CZ');
+  el('source').hidden=!current[3];if(current[3])el('source').href=current[3];
+  el('admin').hidden=!closed;el('save').hidden=closed||!s.user;
+  el('choices').replaceChildren();el('bonuses').replaceChildren();
+  for(const [key,[label,options]] of Object.entries(s.fields)){
+    const wrap=picker(el('choices'),key,label,options,s.ticket[key],closed||!s.user);
+    if(closed){const note=document.createElement('small');note.textContent=s.result[key]?(options[s.result[key]]||s.result[key])+(s.points[key]!=null?' · '+s.points[key]+' b.':''):'Čeká na výsledek';wrap.append(note);}
+    if(closed&&!['p1','p2','p3','fastestLap'].includes(key))picker(el('bonuses'),key,label,options,s.result[key],false);
+  }
+}
+for(const id of ['join','login','tip','bonus']){
+  el(id).onsubmit=async event=>{
+    event.preventDefault();const data=Object.fromEntries(new FormData(el(id)));
+    try{
+      if(id==='join'||id==='login'){
+        const response=await api(id,data);el(id).reset();
+        if(id==='join'){el('recovery').hidden=false;el('recovery').textContent='Ulož si svůj osobní kód pro přihlášení na jiném zařízení: '+response.token;}
+      }else{
+        const key=data.key;delete data.key;
+        const ticket=Object.fromEntries(Object.entries(data).filter(([,value])=>value!==''));
+        await api(id,{race:el('race').value,ticket,key});
+      }
+      el('msg').textContent=id==='tip'?'Tip byl uložen.':id==='bonus'?'Body byly přepočteny.':'Přihlášení proběhlo úspěšně.';
+      await refresh();
+    }catch(error){el('msg').textContent=error.message;}
+  };
+}
+function reload(){refresh().catch(error=>el('msg').textContent=error.message);}
+el('race').onchange=reload;reload();
+</script></html>
